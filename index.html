@@ -1,4 +1,3 @@
-
 <!doctype html>
 <html lang="it">
 <head>
@@ -64,6 +63,9 @@ h1{font-size:29px;margin:8px 0}
 .admin-row strong{font-size:14px}
 .admin-row button{flex-shrink:0}
 .footer{text-align:center;color:#72766f;font-size:11px;margin-top:26px;line-height:1.5}
+.status{margin:10px 0;color:var(--muted);font-size:12px;line-height:1.5}
+.status.error{color:#e4a098}
+.status.ok{color:#b9d8a9}
 @media(min-width:620px){
 .app{padding-top:34px}
 .list{grid-template-columns:repeat(3,minmax(0,1fr))}
@@ -80,42 +82,47 @@ h1{font-size:29px;margin:8px 0}
 <div>
 <div class="brand">Gigi's Bar · Bartender Tools</div>
 <h1>Cocktail Finder 🍸</h1>
-<div class="sub">Cerca cocktail, ingredienti e dosi del ricettario.</div>
+<div class="sub">Ricettario condiviso del bar: accedi per consultare le ricette.</div>
 </div>
-<button class="admin-btn" id="adminOpen">⚙ Admin</button>
+<button class="admin-btn" id="adminOpen">⚙ Account</button>
 </header>
 
-<div class="search-wrap">
-<input class="search" id="search" type="search" placeholder="Es. Negroni, gin, lime, caffè…" autocomplete="off" aria-label="Cerca cocktail o ingredienti">
-</div>
-
-<nav class="filters" id="filters" aria-label="Categorie"></nav>
-
-<section class="admin-panel" id="adminPanel">
+<section class="admin-panel show" id="adminPanel">
 <div id="loginArea">
-<h2>Accesso amministratore</h2>
-<p class="small">Accedi per aggiungere cocktail personalizzati al ricettario su questo dispositivo.</p>
-<form id="loginForm" class="form-grid">
+<h2>Accedi al ricettario</h2>
+<p class="small">Usa il tuo account personale. Se non ne hai uno, puoi registrarti qui sotto.</p>
+<form id="loginForm">
+<div class="form-grid">
 <div class="field">
-<label for="username">Nome utente</label>
-<input id="username" required autocomplete="username" value="admin">
+<label for="email">Email</label>
+<input id="email" type="email" required autocomplete="email" placeholder="nome@email.com">
 </div>
 <div class="field">
 <label for="password">Password</label>
-<input id="password" type="password" required autocomplete="current-password" placeholder="Inserisci la password">
+<input id="password" type="password" required minlength="6" autocomplete="current-password" placeholder="Almeno 6 caratteri">
 </div>
-<div class="span2 form-actions">
+</div>
+<div class="form-actions">
 <button class="btn primary" type="submit">Accedi</button>
-<button class="btn" type="button" id="adminCancel">Chiudi</button>
+<button class="btn" type="button" id="register">Crea account</button>
 </div>
-<p class="small span2">Accesso iniziale: utente <b>gigis</b> · password <b>ethan2004</b>.</p>
-<div id="loginError" class="small span2" role="alert"></div>
+<div id="loginError" class="status" role="alert"></div>
 </form>
 </div>
 
+<div id="memberArea" hidden>
+<h2>Account collegato</h2>
+<p class="small">Accesso effettuato con <strong id="memberEmail"></strong></p>
+<p id="roleMessage" class="small"></p>
+<div class="form-actions">
+<button class="btn" type="button" id="logoutAccount">Esci dall'account</button>
+</div>
+</div>
+
 <div id="manageArea" hidden>
-<h2>Gestione ricettario</h2>
-<p class="small">Scrivi un ingrediente per riga nel formato <b>Ingrediente — dose</b>, per esempio: Gin — 50 ml.</p>
+<hr style="border:0;border-top:1px solid var(--line);margin:22px 0">
+<h2>Gestione ricettario · Amministratore</h2>
+<p class="small">Le modifiche vengono salvate nel database condiviso e sono visibili agli altri utenti collegati.</p>
 <form id="recipeForm">
 <div class="form-grid">
 <div class="field">
@@ -139,7 +146,7 @@ h1{font-size:29px;margin:8px 0}
 <input id="recipeGarnish" placeholder="Es. scorza d'arancia">
 </div>
 <div class="field span2">
-<label for="recipeIngredients">Ingredienti e dosi *</label>
+<label for="recipeIngredients">Ingredienti e dosi * (uno per riga: Ingrediente — dose)</label>
 <textarea id="recipeIngredients" required placeholder="Gin — 50 ml&#10;Succo di lime — 20 ml&#10;Sciroppo — 10 ml"></textarea>
 </div>
 <div class="field span2">
@@ -148,25 +155,29 @@ h1{font-size:29px;margin:8px 0}
 </div>
 </div>
 <div class="form-actions">
-<button class="btn primary" type="submit">＋ Salva cocktail</button>
-<button class="btn" type="button" id="logout">Esci dall'admin</button>
+<button class="btn primary" type="submit" id="saveRecipe">＋ Salva cocktail</button>
+<button class="btn" type="button" id="cancelEdit">Annulla modifica</button>
 </div>
-<div id="saveMessage" class="small" role="status"></div>
+<div id="saveMessage" class="status" role="status"></div>
 </form>
-<h2 style="margin-top:28px">Cocktail personalizzati</h2>
+<h2 style="margin-top:28px">Gestisci tutti i cocktail</h2>
 <div id="customList"></div>
-<div class="form-actions">
-<button class="btn danger" id="clearCustom" type="button">Elimina tutti i cocktail aggiunti</button>
-</div>
 </div>
 </section>
 
+<div id="recipeArea" hidden>
+<div class="search-wrap">
+<input class="search" id="search" type="search" placeholder="Es. Negroni, gin, lime, caffè…" autocomplete="off" aria-label="Cerca cocktail o ingredienti">
+</div>
+<nav class="filters" id="filters" aria-label="Categorie"></nav>
 <div class="heading">
 <h2 id="listTitle">Tutti i cocktail</h2>
 <span class="count" id="count"></span>
 </div>
 <section class="list" id="list" aria-live="polite"></section>
-<footer class="footer">Gigi's Bar · Ricettario digitale<br>Le dosi e le note sono riportate dal ricettario fornito.</footer>
+</div>
+
+<footer class="footer">Gigi's Bar · Ricettario digitale<br>Le ricette sono condivise tra gli account autorizzati.</footer>
 </main>
 
 <div class="overlay" id="overlay" role="dialog" aria-modal="true" aria-labelledby="drinkTitle">
@@ -185,8 +196,13 @@ h1{font-size:29px;margin:8px 0}
 </section>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 'use strict';
+
+const SUPABASE_URL='https://nxmobfegepxldofyanvi.supabase.co';
+const SUPABASE_PUBLISHABLE_KEY='sb_publishable_yAeKKXL6I0e8iSJD-ABZeg_MB0kbkd8';
+const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
 
 const BASE_RECIPES = [
 {name:'Americano',category:'Aperitivi',method:'Build',ingredients:[['Bitter','40 ml'],['Vermouth','30 ml'],['Soda','Top']],note:'Zest di limone e arancia.'},
@@ -199,7 +215,6 @@ const BASE_RECIPES = [
 {name:'Passion Royal',category:'Aperitivi',method:'Build',ingredients:[['Prosecco','90 ml'],['Purea Passion','20 ml'],['Ginger Ale','30 ml']],note:'Menta e lime.'},
 {name:'Ginger Lustig',category:'Aperitivi',method:'Build',ingredients:[['Prosecco','90 ml'],['Lime','10 ml'],['Ginger Beer','30 ml']],note:'Zenzero e lime.'},
 {name:'Lillet Wild Berry',category:'Aperitivi',method:'Build',ingredients:[['Lillet Rosè','60 ml'],['Tonica Wild Berry','Fill']],note:'Frutti di bosco, cetriolo e menta.'},
-
 {name:'Popcorn Fizz',category:'Signature Drink',method:'Shake & Strain',ingredients:[['Gin','60 ml'],['Limone','30 ml'],['Caramello','7,5 ml'],['Popcorn Syrup','7,5 ml']],note:'Batch ipotetico: versata 75 ml. Arance essiccate sopra; popcorn a riempire la box di popcorn.'},
 {name:'Vanilla Sky',category:'Signature Drink',method:'Build',ingredients:[['Vodka','50 ml'],['Lavanda Syrup','3 dash'],['Limone','25 ml'],['Lampone','20 ml'],['Panna','Top']],note:'Caramellina fragola e cacao.'},
 {name:'Sudtirol Negroni',category:'Signature Drink',method:'Build',ingredients:[['Batch','90 ml']],note:'Garnish: speck chips.'},
@@ -208,7 +223,6 @@ const BASE_RECIPES = [
 {name:'2 Nuts',category:'Signature Drink',method:'Shake & Strain',ingredients:[['Noselar','40 ml'],['Purea Passion','20 ml'],['Orzata','5 ml'],['Panna','Top']],note:'Cannella in polvere.'},
 {name:'Indian Penicillin',category:'Signature Drink',method:'Shake & Strain',ingredients:[['Whiskey','45 ml'],['Chay Syrup','15 ml'],['Honey Ginger','20 ml'],['Limone','20 ml'],['Laprohig','15 ml (float dopo la shakerata)']],note:'Zenzero e lime.'},
 {name:'Daiquiri Loco',category:'Signature Drink',method:'Shake & Strain – Cobbler',ingredients:[['Rhum','40 ml'],['Liquore Rhum alla Banana','20 ml'],['Lime','30 ml'],['Sciroppo Banana','15 ml']],note:'Garnish da stabilire.'},
-
 {name:'Espresso Martini',category:'Grandi Classici',method:'Shake & Strain',ingredients:[['Vodka','40 ml'],['Liquore Caffè','20 ml'],['Espresso','30 ml'],['Zucchero','10 ml']],note:'Nel ricettario è riportata anche una Sour Line: distillato 45 ml, limone 30 ml, zucchero 15 ml, foam 15 ml.'},
 {name:'Pornstar Martini',category:'Grandi Classici',method:'Shake & Strain',ingredients:[['Vodka','60 ml'],['Vanilla Syrup','20 ml'],['Purea Passion Fruit','20 ml'],['Lime','15 ml']],note:'Shot di Champagne/Prosecco e mezzo passion fruit caramellizzato.'},
 {name:'Clover Club',category:'Grandi Classici',method:'Shake & Strain',ingredients:[['Gin','45 ml'],['Limone','25 ml'],['Zucchero','15 ml'],['Foam','10 ml'],['Lamponi freschi','7–8']],note:''},
@@ -228,145 +242,535 @@ const BASE_RECIPES = [
 {name:'Old Cuban',category:'Grandi Classici',method:'Shake & Strain',ingredients:[['Rhum','45 ml'],['Lime','20 ml'],['Zucchero','15 ml'],['Angostura','2 dash'],['Menta','8–10 foglie'],['Prosecco/Champagne','Top']],note:'Menta e lime.'}
 ];
 
-const STORAGE_CUSTOM='gigis-bar-custom-recipes-v2';
-const STORAGE_FAV='gigis-bar-favorites-v2';
-let customRecipes=[],favorites=[],activeCategory='Tutti',searchTerm='',adminLogged=false;
-
-try{customRecipes=JSON.parse(localStorage.getItem(STORAGE_CUSTOM)||'[]');if(!Array.isArray(customRecipes))customRecipes=[];}catch(e){customRecipes=[];}
-try{favorites=JSON.parse(localStorage.getItem(STORAGE_FAV)||'[]');if(!Array.isArray(favorites))favorites=[];}catch(e){favorites=[];}
-
 const $=id=>document.getElementById(id);
 const categories=['Tutti','Aperitivi','Signature Drink','Grandi Classici','★ Preferiti'];
-const allRecipes=()=>[...BASE_RECIPES,...customRecipes];
+const FAV_KEY='gigis-bar-favorites-v3';
+let recipes=[],favorites=[],activeCategory='Tutti',searchTerm='',currentUser=null,isAdmin=false,editingId=null,channel=null;
 
-function normalize(s){return String(s??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('it');}
-function saveCustom(){localStorage.setItem(STORAGE_CUSTOM,JSON.stringify(customRecipes));}
-function saveFavorites(){localStorage.setItem(STORAGE_FAV,JSON.stringify(favorites));}
-function el(tag,cls,txt){const n=document.createElement(tag);if(cls)n.className=cls;if(txt!==undefined)n.textContent=txt;return n;}
+try{
+favorites=JSON.parse(localStorage.getItem(FAV_KEY)||'[]');
+if(!Array.isArray(favorites))favorites=[];
+}catch{
+favorites=[];
+}
+
+function normalize(s){
+return String(s??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('it');
+}
+
+function el(tag,cls,txt){
+const n=document.createElement(tag);
+if(cls)n.className=cls;
+if(txt!==undefined)n.textContent=txt;
+return n;
+}
+
+function status(id,msg,type=''){
+const n=$(id);
+if(n){n.textContent=msg;n.className='status '+type;}
+}
+
+function saveFavorites(){
+localStorage.setItem(FAV_KEY,JSON.stringify(favorites));
+}
+
+function mapRecipe(r){
+return {
+id:r.id,
+name:r.name,
+category:r.category||'Grandi Classici',
+method:r.method||'Non specificata',
+ingredients:Array.isArray(r.ingredients)?r.ingredients:[],
+note:r.note||'',
+preparation:r.preparation||'',
+custom:!!r.custom
+};
+}
+
+function recipePayload(r){
+return {
+name:r.name,
+category:r.category,
+method:r.method,
+ingredients:r.ingredients,
+note:r.note,
+preparation:r.preparation||'',
+custom:r.custom??true
+};
+}
+
+function showAuth(){
+const logged=!!currentUser;
+$('loginArea').hidden=logged;
+$('memberArea').hidden=!logged;
+$('manageArea').hidden=!(logged&&isAdmin);
+$('recipeArea').hidden=!logged;
+
+if(logged){
+$('memberEmail').textContent=currentUser.email||'Account';
+$('roleMessage').textContent=isAdmin
+?'Sei amministratore: puoi aggiungere, modificare ed eliminare ricette.'
+:'Account collaboratore: puoi consultare il ricettario, ma non modificarlo.';
+}
+
+if(!logged){
+$('adminPanel').classList.add('show');
+$('list').replaceChildren(el('div','empty','Accedi dall’area Account per aprire il ricettario.'));
+$('count').textContent='';
+}else{
+$('adminPanel').classList.remove('show');
+renderFilters();
+renderList();
+}
+}
+
+$('adminOpen').onclick=()=>{
+$('adminPanel').classList.toggle('show');
+};
+
+$('loginForm').addEventListener('submit',async e=>{
+e.preventDefault();
+status('loginError','Accesso in corso…');
+
+const {error}=await db.auth.signInWithPassword({
+email:$('email').value.trim(),
+password:$('password').value
+});
+
+if(error)status('loginError',error.message,'error');
+else status('loginError','');
+});
+
+$('register').onclick=async()=>{
+const email=$('email').value.trim();
+const password=$('password').value;
+
+if(!email||!password){
+status('loginError','Inserisci prima email e password.','error');
+return;
+}
+
+if(password.length<6){
+status('loginError','La password deve avere almeno 6 caratteri.','error');
+return;
+}
+
+status('loginError','Creazione account in corso…');
+
+const {data,error}=await db.auth.signUp({
+email,
+password,
+options:{emailRedirectTo:location.origin+location.pathname}
+});
+
+if(error){
+status('loginError',error.message,'error');
+return;
+}
+
+if(data.session){
+status('loginError','Account creato. Accesso effettuato.','ok');
+}else{
+status('loginError','Account creato. Se richiesto, conferma l’email ricevuta e poi accedi.','ok');
+}
+};
+
+async function logout(){
+await db.auth.signOut();
+currentUser=null;
+isAdmin=false;
+recipes=[];
+
+if(channel){
+await db.removeChannel(channel);
+channel=null;
+}
+
+showAuth();
+}
+
+$('logoutAccount').onclick=logout;
+
+async function getRole(){
+const {data,error}=await db.from('app_roles')
+.select('role')
+.eq('user_id',currentUser.id)
+.maybeSingle();
+
+if(error){
+console.error(error);
+throw new Error('Non riesco a verificare i permessi account. Controlla le policy della tabella app_roles.');
+}
+
+return data?.role==='admin';
+}
+
+async function seedIfEmpty(){
+const {count,error}=await db.from('recipes').select('id',{count:'exact',head:true});
+if(error)throw error;
+
+if(count===0&&isAdmin){
+const rows=BASE_RECIPES.map(r=>({
+...recipePayload({...r,custom:false}),
+name:r.name
+}));
+
+const {error:insertError}=await db.from('recipes').insert(rows);
+if(insertError)throw insertError;
+}
+}
+
+async function loadRecipes(){
+const {data,error}=await db.from('recipes').select('*').order('name');
+if(error)throw error;
+
+recipes=(data||[]).map(mapRecipe);
+renderFilters();
+renderList();
+
+if(isAdmin)renderAdminList();
+}
+
+async function startRealtime(){
+if(channel)await db.removeChannel(channel);
+
+channel=db.channel('shared-recipes-live')
+.on('postgres_changes',{
+event:'*',
+schema:'public',
+table:'recipes'
+},async()=>{
+try{
+await loadRecipes();
+}catch(e){
+console.error(e);
+}
+})
+.subscribe();
+}
+
+async function onSession(session){
+currentUser=session?.user||null;
+isAdmin=false;
+
+if(!currentUser){
+recipes=[];
+
+if(channel){
+await db.removeChannel(channel);
+channel=null;
+}
+
+showAuth();
+return;
+}
+
+try{
+isAdmin=await getRole();
+showAuth();
+await seedIfEmpty();
+await loadRecipes();
+await startRealtime();
+}catch(e){
+status('loginError',e.message||'Errore nel caricamento del ricettario.','error');
+console.error(e);
+}
+}
+
+db.auth.onAuthStateChange((_event,session)=>{
+setTimeout(()=>onSession(session),0);
+});
 
 function renderFilters(){
- const f=$('filters');f.replaceChildren();
- categories.forEach(c=>{
-  const b=el('button','chip'+(activeCategory===c?' active':''),c);
-  b.type='button';b.setAttribute('aria-pressed',String(activeCategory===c));
-  b.onclick=()=>{activeCategory=c;renderFilters();renderList();};
-  f.appendChild(b);
- });
+const f=$('filters');
+f.replaceChildren();
+
+categories.forEach(c=>{
+const b=el('button','chip'+(activeCategory===c?' active':''),c);
+b.type='button';
+b.setAttribute('aria-pressed',String(activeCategory===c));
+
+b.onclick=()=>{
+activeCategory=c;
+renderFilters();
+renderList();
+};
+
+f.appendChild(b);
+});
 }
 
 function renderList(){
- const all=allRecipes(),q=normalize(searchTerm);
- const found=all.filter(recipe=>{
-  const hay=normalize([recipe.name,recipe.category,recipe.method,recipe.note,recipe.preparation,...recipe.ingredients.flat()].join(' '));
-  const catOK=activeCategory==='Tutti'||(activeCategory==='★ Preferiti'?favorites.includes(recipe.name):recipe.category===activeCategory);
-  return catOK&&hay.includes(q);
- });
- $('listTitle').textContent=activeCategory==='Tutti'?'Tutti i cocktail':activeCategory;
- $('count').textContent=found.length+(found.length===1?' risultato':' risultati');
- const list=$('list');list.replaceChildren();
- if(!found.length){list.appendChild(el('div','empty','Nessun cocktail trovato. Prova un altro nome o ingrediente.'));return;}
- found.forEach(recipe=>{
-  const card=el('article','drink');card.tabIndex=0;card.setAttribute('role','button');card.setAttribute('aria-label','Apri '+recipe.name);
-  const star=el('button','star',favorites.includes(recipe.name)?'★':'☆');
-  star.type='button';star.setAttribute('aria-label','Preferito');
-  star.onclick=e=>{
-   e.stopPropagation();
-   favorites=favorites.includes(recipe.name)?favorites.filter(n=>n!==recipe.name):[...favorites,recipe.name];
-   saveFavorites();renderList();
-  };
-  card.append(star,el('div','cat',recipe.category),el('h3','',recipe.name),el('div','method',recipe.method+(recipe.note?' · '+recipe.note:'')));
-  card.onclick=()=>openRecipe(recipe);
-  card.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openRecipe(recipe);}};
-  list.appendChild(card);
- });
-}
+if(!currentUser)return;
 
-function openRecipe(recipe){
- $('drinkCategory').textContent=recipe.category;
- $('drinkTitle').textContent=recipe.name;
- $('drinkMethod').textContent=recipe.method||'Preparazione non specificata';
- const ul=$('ingredients');ul.replaceChildren();
- recipe.ingredients.forEach(([name,amount])=>{
-  const li=el('li');li.append(el('span','',name),el('span','',amount));ul.appendChild(li);
- });
- const note=$('drinkNote');let txt=recipe.note||'';
- if(recipe.preparation)txt+=(txt?'\n\n':'')+'Preparazione: '+recipe.preparation;
- note.textContent=txt;note.hidden=!txt;
- $('overlay').classList.add('open');document.body.style.overflow='hidden';
-}
+const q=normalize(searchTerm);
 
-function closeRecipe(){$('overlay').classList.remove('open');document.body.style.overflow='';}
-$('search').addEventListener('input',()=>{searchTerm=$('search').value;renderList();});
-$('close').onclick=closeRecipe;
-$('overlay').addEventListener('click',e=>{if(e.target===$('overlay'))closeRecipe();});
-document.addEventListener('keydown',e=>{if(e.key==='Escape')closeRecipe();});
+const found=recipes.filter(r=>{
+const hay=normalize([
+r.name,
+r.category,
+r.method,
+r.note,
+r.preparation,
+...r.ingredients.flat()
+].join(' '));
 
-$('adminOpen').onclick=()=>{$('adminPanel').classList.toggle('show');if(adminLogged)showAdmin();};
-$('adminCancel').onclick=()=>$('adminPanel').classList.remove('show');
+const catOK=activeCategory==='Tutti'||
+(activeCategory==='★ Preferiti'
+?favorites.includes(r.name)
+:r.category===activeCategory);
 
-function showAdmin(){
- $('loginArea').hidden=adminLogged;
- $('manageArea').hidden=!adminLogged;
- if(adminLogged)renderCustomList();
-}
-
-$('loginForm').addEventListener('submit',e=>{
- e.preventDefault();
- const user=$('username').value.trim(),pass=$('password').value;
- if(user==='admin'&&pass==='GigiBar2026!'){
-  adminLogged=true;$('loginError').textContent='';showAdmin();
- }else{$('loginError').textContent='Credenziali non corrette.';}
+return catOK&&hay.includes(q);
 });
 
-$('logout').onclick=()=>{adminLogged=false;showAdmin();$('password').value='';};
+$('listTitle').textContent=
+activeCategory==='Tutti'?'Tutti i cocktail':activeCategory;
 
-$('recipeForm').addEventListener('submit',e=>{
- e.preventDefault();if(!adminLogged)return;
- const name=$('recipeName').value.trim();
- const ingredients=$('recipeIngredients').value.split('\n').map(x=>x.trim()).filter(Boolean).map(line=>{
-  const parts=line.split(/\s+[—–-]\s+/);
-  return parts.length>1?[parts.slice(0,-1).join(' — '),parts[parts.length-1]]:[line,''];
- });
- if(!name||!ingredients.length){$('saveMessage').textContent='Inserisci il nome e almeno un ingrediente.';return;}
- if(allRecipes().some(r=>normalize(r.name)===normalize(name))){$('saveMessage').textContent='Esiste già un cocktail con questo nome.';return;}
- customRecipes.push({
-  name,category:$('recipeCategory').value,
-  method:$('recipeMethod').value.trim()||'Non specificata',
-  ingredients,note:$('recipeGarnish').value.trim(),
-  preparation:$('recipePreparation').value.trim(),custom:true
- });
- saveCustom();$('recipeForm').reset();
- $('saveMessage').textContent='Cocktail salvato! Ora è disponibile nella ricerca.';
- renderList();renderCustomList();
-});
+$('count').textContent=found.length+
+(found.length===1?' risultato':' risultati');
 
-function renderCustomList(){
- const box=$('customList');box.replaceChildren();
- if(!customRecipes.length){box.appendChild(el('p','small','Non hai ancora aggiunto cocktail personalizzati.'));return;}
- customRecipes.forEach((r,i)=>{
-  const row=el('div','admin-row');
-  row.appendChild(el('strong','',r.name+' · '+r.category));
-  const del=el('button','btn danger','Elimina');del.type='button';
-  del.onclick=()=>{
-   if(!confirm('Eliminare '+r.name+'?'))return;
-   customRecipes.splice(i,1);saveCustom();
-   favorites=favorites.filter(n=>n!==r.name);saveFavorites();
-   renderList();renderCustomList();
-  };
-  row.appendChild(del);box.appendChild(row);
- });
+const list=$('list');
+list.replaceChildren();
+
+if(!found.length){
+list.appendChild(el('div','empty','Nessun cocktail trovato. Prova un altro nome o ingrediente.'));
+return;
 }
 
-$('clearCustom').onclick=()=>{
- if(!adminLogged)return;
- if(!confirm('Eliminare tutti i cocktail aggiunti da te?'))return;
- const names=customRecipes.map(r=>r.name);
- customRecipes=[];favorites=favorites.filter(n=>!names.includes(n));
- saveCustom();saveFavorites();renderList();renderCustomList();
+found.forEach(r=>{
+const card=el('article','drink');
+card.tabIndex=0;
+card.setAttribute('role','button');
+card.setAttribute('aria-label','Apri '+r.name);
+
+const star=el('button','star',favorites.includes(r.name)?'★':'☆');
+star.type='button';
+star.setAttribute('aria-label','Preferito');
+
+star.onclick=e=>{
+e.stopPropagation();
+
+favorites=favorites.includes(r.name)
+?favorites.filter(n=>n!==r.name)
+:[...favorites,r.name];
+
+saveFavorites();
+renderList();
 };
 
-renderFilters();
+card.append(
+star,
+el('div','cat',r.category),
+el('h3','',r.name),
+el('div','method',r.method+(r.note?' · '+r.note:''))
+);
+
+card.onclick=()=>openRecipe(r);
+
+card.onkeydown=e=>{
+if(e.key==='Enter'||e.key===' '){
+e.preventDefault();
+openRecipe(r);
+}
+};
+
+list.appendChild(card);
+});
+}
+
+function openRecipe(r){
+$('drinkCategory').textContent=r.category;
+$('drinkTitle').textContent=r.name;
+$('drinkMethod').textContent=r.method||'Preparazione non specificata';
+
+const ul=$('ingredients');
+ul.replaceChildren();
+
+r.ingredients.forEach(pair=>{
+const li=el('li');
+li.append(
+el('span','',pair[0]||''),
+el('span','',pair[1]||'')
+);
+ul.appendChild(li);
+});
+
+let txt=r.note||'';
+
+if(r.preparation){
+txt+=(txt?'\n\n':'')+'Preparazione: '+r.preparation;
+}
+
+$('drinkNote').textContent=txt;
+$('drinkNote').hidden=!txt;
+
+$('overlay').classList.add('open');
+document.body.style.overflow='hidden';
+}
+
+function closeRecipe(){
+$('overlay').classList.remove('open');
+document.body.style.overflow='';
+}
+
+$('search').addEventListener('input',()=>{
+searchTerm=$('search').value;
 renderList();
+});
+
+$('close').onclick=closeRecipe;
+
+$('overlay').addEventListener('click',e=>{
+if(e.target===$('overlay'))closeRecipe();
+});
+
+document.addEventListener('keydown',e=>{
+if(e.key==='Escape')closeRecipe();
+});
+
+function parseIngredients(text){
+return text.split('\n')
+.map(x=>x.trim())
+.filter(Boolean)
+.map(line=>{
+const parts=line.split(/\s+[—–-]\s+/);
+return parts.length>1
+?[parts.slice(0,-1).join(' — '),parts[parts.length-1]]
+:[line,''];
+});
+}
+
+function clearEditor(){
+editingId=null;
+$('recipeForm').reset();
+$('saveRecipe').textContent='＋ Salva cocktail';
+status('saveMessage','');
+}
+
+$('cancelEdit').onclick=clearEditor;
+
+$('recipeForm').addEventListener('submit',async e=>{
+e.preventDefault();
+
+if(!isAdmin)return;
+
+const name=$('recipeName').value.trim();
+const ingredients=parseIngredients($('recipeIngredients').value);
+
+if(!name||!ingredients.length){
+status('saveMessage','Inserisci nome e almeno un ingrediente.','error');
+return;
+}
+
+const duplicate=recipes.find(r=>
+normalize(r.name)===normalize(name)&&r.id!==editingId
+);
+
+if(duplicate){
+status('saveMessage','Esiste già un cocktail con questo nome.','error');
+return;
+}
+
+const payload={
+name,
+category:$('recipeCategory').value,
+method:$('recipeMethod').value.trim()||'Non specificata',
+note:$('recipeGarnish').value.trim(),
+preparation:$('recipePreparation').value.trim(),
+ingredients,
+custom:true
+};
+
+status('saveMessage','Salvataggio…');
+
+let result;
+
+if(editingId){
+result=await db.from('recipes').update(payload).eq('id',editingId);
+}else{
+result=await db.from('recipes').insert(payload);
+}
+
+if(result.error){
+status('saveMessage','Errore: '+result.error.message,'error');
+return;
+}
+
+clearEditor();
+status('saveMessage','Cocktail salvato nel ricettario condiviso.','ok');
+await loadRecipes();
+});
+
+function renderAdminList(){
+const box=$('customList');
+if(!box)return;
+
+box.replaceChildren();
+
+if(!recipes.length){
+box.appendChild(el('p','small','Nessuna ricetta presente.'));
+return;
+}
+
+recipes.forEach(r=>{
+const row=el('div','admin-row');
+const label=el('strong','',r.name+' · '+r.category);
+const actions=el('div','form-actions');
+actions.style.marginTop='0';
+
+const edit=el('button','btn','Modifica');
+edit.type='button';
+
+edit.onclick=()=>{
+editingId=r.id;
+
+$('recipeName').value=r.name;
+$('recipeCategory').value=r.category;
+$('recipeMethod').value=r.method;
+$('recipeGarnish').value=r.note;
+
+$('recipeIngredients').value=r.ingredients
+.map(p=>(p[0]||'')+' — '+(p[1]||''))
+.join('\n');
+
+$('recipePreparation').value=r.preparation;
+$('saveRecipe').textContent='Salva modifiche';
+
+status('saveMessage','Stai modificando: '+r.name);
+
+$('recipeName').focus();
+$('recipeForm').scrollIntoView({
+behavior:'smooth',
+block:'start'
+});
+};
+
+const del=el('button','btn danger','Elimina');
+del.type='button';
+
+del.onclick=async()=>{
+if(!confirm('Eliminare "'+r.name+'"? Questa azione è condivisa con tutti gli utenti.'))return;
+
+const {error}=await db.from('recipes').delete().eq('id',r.id);
+
+if(error){
+status('saveMessage','Errore eliminazione: '+error.message,'error');
+return;
+}
+
+favorites=favorites.filter(n=>n!==r.name);
+saveFavorites();
+
+if(editingId===r.id)clearEditor();
+
+await loadRecipes();
+};
+
+actions.append(edit,del);
+row.append(label,actions);
+box.appendChild(row);
+});
+}
 </script>
 </body>
 </html>
