@@ -1,192 +1,372 @@
 
-<!DOCTYPE html>
+<!doctype html>
 <html lang="it">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#10110f">
-<title>Gigi's Bar | Cocktail Menu</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#111211">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Gigi's Bar">
+<title>Gigi's Bar · Cocktail Finder</title>
 <style>
-:root {
-  --bg:#10110f; --panel:#191a17; --gold:#d6b46a;
-  --text:#f5f0e5; --muted:#a7a497; --line:#34342d;
-}
+:root{color-scheme:dark;--bg:#111211;--panel:#1c1e1d;--gold:#d7b56d;--text:#f5f3ed;--muted:#a5aaa5;--line:#373a36;--red:#a44d43}
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--text);
-font-family:Arial,Helvetica,sans-serif}
-header{padding:30px 20px 24px;text-align:center;
-background:linear-gradient(180deg,#29251b,#10110f)}
-.logo{font-size:12px;letter-spacing:5px;color:var(--gold)}
-h1{font-family:Georgia,serif;font-weight:400;font-size:39px;
-margin:12px 0 6px;letter-spacing:2px}
-.subtitle{color:var(--muted);font-size:12px;letter-spacing:3px}
-main{max-width:900px;margin:auto;padding:20px 16px 60px}
-.search{width:100%;background:var(--panel);border:1px solid var(--line);
-padding:16px;border-radius:12px;color:white;font-size:15px;outline:none}
-.search:focus{border-color:var(--gold)}
-.filters{display:flex;gap:8px;overflow-x:auto;padding:16px 0}
-.filter{white-space:nowrap;border:1px solid var(--line);color:var(--muted);
-background:transparent;padding:10px 14px;border-radius:30px;cursor:pointer}
-.filter.active{background:var(--gold);color:#17150f;border-color:var(--gold)}
-.count{color:var(--muted);font-size:12px;margin:5px 0 16px}
-.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
-.card{background:var(--panel);border:1px solid var(--line);border-radius:13px;
-padding:16px;cursor:pointer;min-height:140px;position:relative;transition:.2s}
-.card:hover{border-color:var(--gold);transform:translateY(-2px)}
-.card .emoji{font-size:25px;margin-bottom:13px}
-.card h3{font-family:Georgia,serif;font-weight:400;font-size:19px;margin:0 0 8px}
-.card p{color:var(--muted);font-size:12px;line-height:1.5;margin:0}
-.tag{display:inline-block;color:var(--gold);font-size:10px;
-letter-spacing:1px;text-transform:uppercase;margin-top:12px}
-.heart{position:absolute;right:12px;top:12px;color:var(--gold);
-border:0;background:none;font-size:20px;cursor:pointer}
-.empty{text-align:center;color:var(--muted);padding:45px 10px;grid-column:1/-1}
-footer{text-align:center;color:#77766b;font-size:11px;padding:30px 10px;
-letter-spacing:2px}
-.modal{position:fixed;inset:0;background:#000b;display:none;align-items:end;
-justify-content:center;z-index:5}
-.modal.show{display:flex}
-.sheet{width:100%;max-width:650px;max-height:90vh;overflow:auto;
-background:#191a17;border:1px solid var(--line);border-radius:22px 22px 0 0;
-padding:24px 22px 35px}
-.close{float:right;background:#303029;color:white;border:0;border-radius:50%;
-width:36px;height:36px;font-size:20px;cursor:pointer}
-.sheet h2{font-family:Georgia,serif;font-weight:400;font-size:30px;
-color:var(--gold);margin:15px 0 8px}
-.sheet .category{color:var(--muted);font-size:11px;letter-spacing:2px}
-.sheet h4{color:var(--gold);font-size:12px;letter-spacing:2px;margin-top:25px}
-.sheet li{margin:11px 0;color:#e5e0d5;line-height:1.5}
-.sheet .method{line-height:1.8;color:#e5e0d5}
-@media(min-width:650px){.grid{grid-template-columns:repeat(3,minmax(0,1fr))}
-.modal{align-items:center}.sheet{border-radius:20px}}
+body{margin:0;background:radial-gradient(ellipse at top,#29271f 0,#111211 55%);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;min-height:100vh}
+.app{max-width:950px;margin:auto;padding:calc(22px + env(safe-area-inset-top)) 16px calc(35px + env(safe-area-inset-bottom))}
+.brand{font-size:11px;letter-spacing:2.8px;text-transform:uppercase;color:var(--gold)}
+h1{font-size:29px;margin:8px 0}
+.sub{font-size:13px;color:var(--muted)}
+.top{display:flex;align-items:center;justify-content:space-between;gap:15px}
+.admin-btn,.btn{border:1px solid var(--gold);border-radius:11px;padding:11px 14px;background:transparent;color:var(--gold);font-weight:600;cursor:pointer}
+.search-wrap{position:sticky;top:0;z-index:2;padding:14px 0;background:linear-gradient(#111211 82%,transparent)}
+.search{width:100%;padding:16px;border:1px solid var(--line);border-radius:14px;background:#202220;color:var(--text);font-size:16px;outline:none}
+.search:focus,input:focus,textarea:focus,select:focus{border-color:var(--gold);outline:none}
+.filters{display:flex;gap:8px;overflow-x:auto;padding:0 0 15px;scrollbar-width:none}
+.chip{flex:0 0 auto;border:1px solid var(--line);border-radius:25px;padding:10px 13px;background:var(--panel);color:var(--muted);font-size:13px;cursor:pointer}
+.chip.active{background:var(--gold);color:#181710;border-color:var(--gold);font-weight:700}
+.heading{display:flex;justify-content:space-between;align-items:center;margin:3px 0 12px}
+.heading h2{font-size:17px;margin:0}
+.count{font-size:12px;color:var(--muted)}
+.list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.drink{position:relative;min-height:130px;text-align:left;padding:15px;border:1px solid var(--line);border-radius:15px;background:linear-gradient(145deg,#222522,#181a19);color:var(--text);cursor:pointer}
+.drink:active{transform:scale(.985)}
+.cat{font-size:10px;color:var(--gold);letter-spacing:1px;text-transform:uppercase;padding-right:25px}
+.drink h3{font-family:Georgia,serif;font-size:17px;line-height:1.25;margin:11px 0 7px;padding-right:5px}
+.method{font-size:11px;color:var(--muted)}
+.star{position:absolute;right:10px;top:8px;background:none;border:0;color:var(--gold);font-size:22px;padding:2px;cursor:pointer}
+.empty{grid-column:1/-1;text-align:center;padding:32px 12px;border:1px dashed var(--line);border-radius:14px;color:var(--muted);line-height:1.6}
+.overlay{display:none;position:fixed;inset:0;z-index:10;background:#000b;align-items:flex-end;justify-content:center}
+.overlay.open{display:flex}
+.modal{width:100%;max-width:700px;max-height:91dvh;overflow:auto;background:#191b1a;border:1px solid #42443d;border-radius:23px 23px 0 0;padding:22px 20px calc(24px + env(safe-area-inset-bottom))}
+.modal-head{display:flex;justify-content:space-between;gap:12px}
+.modal h2{font-size:27px;margin:7px 0 13px;color:var(--gold)}
+.close{width:38px;height:38px;flex-shrink:0;border:1px solid var(--line);border-radius:50%;background:var(--panel);color:white;font-size:22px;cursor:pointer}
+.pill{display:inline-block;background:#302a1e;color:var(--gold);border-radius:8px;padding:8px 10px;font-size:12px}
+.modal h4{font-size:11px;letter-spacing:1.5px;color:var(--muted);margin:22px 0 8px}
+.ingredients{list-style:none;padding:0;margin:0}
+.ingredients li{display:flex;justify-content:space-between;gap:15px;border-bottom:1px solid var(--line);padding:12px 0;font-size:15px}
+.ingredients li span:last-child{color:var(--gold);text-align:right}
+.note{background:#242624;border-radius:10px;padding:13px;margin-top:15px;color:var(--muted);font-size:13px;line-height:1.5;white-space:pre-line}
+.note[hidden]{display:none}
+.form-grid{display:grid;grid-template-columns:1fr;gap:12px}
+.field{display:flex;flex-direction:column;gap:6px}
+.field label{font-size:12px;color:var(--muted)}
+.field input,.field select,.field textarea{width:100%;border:1px solid var(--line);background:#111310;color:var(--text);padding:12px;border-radius:10px;font:inherit}
+.field textarea{min-height:110px;resize:vertical}
+.form-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.btn.primary{background:var(--gold);color:#17150f}
+.btn.danger{border-color:var(--red);color:#e4a098}
+.admin-panel{display:none;margin:18px 0;padding:18px;border:1px solid var(--line);border-radius:16px;background:#191b1a}
+.admin-panel.show{display:block}
+.admin-panel h2{font-family:Georgia,serif;font-weight:400;color:var(--gold);margin-top:0}
+.small{font-size:12px;color:var(--muted);line-height:1.5}
+.admin-row{border-top:1px solid var(--line);padding:12px 0;display:flex;justify-content:space-between;align-items:center;gap:12px}
+.admin-row strong{font-size:14px}
+.admin-row button{flex-shrink:0}
+.footer{text-align:center;color:#72766f;font-size:11px;margin-top:26px;line-height:1.5}
+@media(min-width:620px){
+.app{padding-top:34px}
+.list{grid-template-columns:repeat(3,minmax(0,1fr))}
+.overlay{align-items:center;padding:20px}
+.modal{border-radius:22px;max-height:88vh}
+.form-grid{grid-template-columns:1fr 1fr}
+.span2{grid-column:1/-1}
+}
 </style>
 </head>
 <body>
-<header>
-  <div class="logo">COCKTAIL EXPERIENCE</div>
-  <h1>Gigi's Bar</h1>
-  <div class="subtitle">IL TUO RICETTARIO</div>
+<main class="app">
+<header class="top">
+<div>
+<div class="brand">Gigi's Bar · Bartender Tools</div>
+<h1>Cocktail Finder 🍸</h1>
+<div class="sub">Cerca cocktail, ingredienti e dosi del ricettario.</div>
+</div>
+<button class="admin-btn" id="adminOpen">⚙ Admin</button>
 </header>
 
-<main>
-  <input id="search" class="search" placeholder="Cerca un cocktail o un ingrediente..." autocomplete="off">
-  <div class="filters" id="filters">
-    <button class="filter active" data-cat="Tutti">Tutti</button>
-    <button class="filter" data-cat="Aperitivi">Aperitivi</button>
-    <button class="filter" data-cat="Signature Drink">Signature Drink</button>
-    <button class="filter" data-cat="Grandi Classici">Grandi Classici</button>
-    <button class="filter" data-cat="Preferiti">♥ Preferiti</button>
-  </div>
-  <div class="count" id="count"></div>
-  <div class="grid" id="grid"></div>
-</main>
-<footer>GIGI'S BAR · COCKTAIL MENU</footer>
+<div class="search-wrap">
+<input class="search" id="search" type="search" placeholder="Es. Negroni, gin, lime, caffè…" autocomplete="off" aria-label="Cerca cocktail o ingredienti">
+</div>
 
-<div class="modal" id="modal" role="dialog" aria-modal="true">
-  <div class="sheet">
-    <button class="close" id="close" aria-label="Chiudi">×</button>
-    <div id="detail"></div>
-  </div>
+<nav class="filters" id="filters" aria-label="Categorie"></nav>
+
+<section class="admin-panel" id="adminPanel">
+<div id="loginArea">
+<h2>Accesso amministratore</h2>
+<p class="small">Accedi per aggiungere cocktail personalizzati al ricettario su questo dispositivo.</p>
+<form id="loginForm" class="form-grid">
+<div class="field">
+<label for="username">Nome utente</label>
+<input id="username" required autocomplete="username" value="admin">
+</div>
+<div class="field">
+<label for="password">Password</label>
+<input id="password" type="password" required autocomplete="current-password" placeholder="Inserisci la password">
+</div>
+<div class="span2 form-actions">
+<button class="btn primary" type="submit">Accedi</button>
+<button class="btn" type="button" id="adminCancel">Chiudi</button>
+</div>
+<p class="small span2">Accesso iniziale: utente <b>admin</b> · password <b>GigiBar2026!</b>.</p>
+<div id="loginError" class="small span2" role="alert"></div>
+</form>
+</div>
+
+<div id="manageArea" hidden>
+<h2>Gestione ricettario</h2>
+<p class="small">Scrivi un ingrediente per riga nel formato <b>Ingrediente — dose</b>, per esempio: Gin — 50 ml.</p>
+<form id="recipeForm">
+<div class="form-grid">
+<div class="field">
+<label for="recipeName">Nome cocktail *</label>
+<input id="recipeName" required maxlength="80" placeholder="Es. Gigi Special">
+</div>
+<div class="field">
+<label for="recipeCategory">Categoria</label>
+<select id="recipeCategory">
+<option>Aperitivi</option>
+<option>Signature Drink</option>
+<option>Grandi Classici</option>
+</select>
+</div>
+<div class="field">
+<label for="recipeMethod">Tecnica</label>
+<input id="recipeMethod" placeholder="Build, Shake & Strain…">
+</div>
+<div class="field">
+<label for="recipeGarnish">Garnish / nota</label>
+<input id="recipeGarnish" placeholder="Es. scorza d'arancia">
+</div>
+<div class="field span2">
+<label for="recipeIngredients">Ingredienti e dosi *</label>
+<textarea id="recipeIngredients" required placeholder="Gin — 50 ml&#10;Succo di lime — 20 ml&#10;Sciroppo — 10 ml"></textarea>
+</div>
+<div class="field span2">
+<label for="recipePreparation">Preparazione (facoltativa)</label>
+<textarea id="recipePreparation" placeholder="Descrivi i passaggi…" style="min-height:75px"></textarea>
+</div>
+</div>
+<div class="form-actions">
+<button class="btn primary" type="submit">＋ Salva cocktail</button>
+<button class="btn" type="button" id="logout">Esci dall'admin</button>
+</div>
+<div id="saveMessage" class="small" role="status"></div>
+</form>
+<h2 style="margin-top:28px">Cocktail personalizzati</h2>
+<div id="customList"></div>
+<div class="form-actions">
+<button class="btn danger" id="clearCustom" type="button">Elimina tutti i cocktail aggiunti</button>
+</div>
+</div>
+</section>
+
+<div class="heading">
+<h2 id="listTitle">Tutti i cocktail</h2>
+<span class="count" id="count"></span>
+</div>
+<section class="list" id="list" aria-live="polite"></section>
+<footer class="footer">Gigi's Bar · Ricettario digitale<br>Le dosi e le note sono riportate dal ricettario fornito.</footer>
+</main>
+
+<div class="overlay" id="overlay" role="dialog" aria-modal="true" aria-labelledby="drinkTitle">
+<section class="modal">
+<div class="modal-head">
+<div>
+<div class="brand" id="drinkCategory"></div>
+<h2 id="drinkTitle"></h2>
+</div>
+<button class="close" id="close" aria-label="Chiudi">×</button>
+</div>
+<div class="pill" id="drinkMethod"></div>
+<h4>INGREDIENTI E DOSI</h4>
+<ul class="ingredients" id="ingredients"></ul>
+<div class="note" id="drinkNote" hidden></div>
+</section>
 </div>
 
 <script>
-const recipes = [
-{name:"Negroni",cat:"Grandi Classici",emoji:"🥃",desc:"Amaro, intenso e intramontabile.",ingredients:["30 ml gin","30 ml bitter rosso","30 ml vermouth rosso"],method:"Versa tutti gli ingredienti in un bicchiere Old Fashioned colmo di ghiaccio. Mescola delicatamente e guarnisci con una fetta d'arancia."},
-{name:"Americano",cat:"Aperitivi",emoji:"🍊",desc:"L'aperitivo italiano per eccellenza.",ingredients:["30 ml bitter rosso","30 ml vermouth rosso","Soda","Fetta d'arancia"],method:"Versa bitter e vermouth in un bicchiere con ghiaccio. Completa con soda, mescola e guarnisci con arancia."},
-{name:"Aperol Spritz",cat:"Aperitivi",emoji:"🍹",desc:"Fresco, frizzante e perfetto per l'aperitivo.",ingredients:["90 ml Prosecco","60 ml Aperol","Splash di soda","Arancia"],method:"Riempi un calice di ghiaccio. Aggiungi Prosecco, Aperol e soda. Mescola piano e guarnisci con arancia."},
-{name:"Campari Spritz",cat:"Aperitivi",emoji:"🍹",desc:"Un aperitivo dal carattere deciso.",ingredients:["90 ml Prosecco","60 ml Campari","Splash di soda"],method:"Versa gli ingredienti in un calice con ghiaccio, mescola delicatamente e guarnisci con arancia."},
-{name:"Hugo",cat:"Aperitivi",emoji:"🌿",desc:"Sambuco, menta e bollicine.",ingredients:["150 ml Prosecco","20 ml sciroppo di sambuco","Soda","Menta fresca","Lime"],method:"Metti menta e lime nel calice, aggiungi ghiaccio, sciroppo e Prosecco. Completa con soda e mescola."},
-{name:"Mojito",cat:"Grandi Classici",emoji:"🌿",desc:"Rum, lime e menta fresca.",ingredients:["50 ml rum bianco","25 ml succo di lime","2 cucchiaini di zucchero","Menta fresca","Soda"],method:"Pesta delicatamente menta, lime e zucchero. Aggiungi rum e ghiaccio tritato. Completa con soda e mescola."},
-{name:"Margarita",cat:"Grandi Classici",emoji:"🍸",desc:"Tequila e lime con un tocco agrumato.",ingredients:["50 ml tequila","25 ml triple sec","25 ml succo di lime","Sale per il bordo"],method:"Shakera gli ingredienti con ghiaccio. Filtra in una coppa con bordo salato."},
-{name:"Daiquiri",cat:"Grandi Classici",emoji:"🍸",desc:"Essenziale, fresco ed equilibrato.",ingredients:["60 ml rum bianco","25 ml succo di lime","15 ml sciroppo di zucchero"],method:"Shakera tutti gli ingredienti con ghiaccio e filtra in una coppa fredda."},
-{name:"Espresso Martini",cat:"Grandi Classici",emoji:"☕",desc:"Vodka, caffè e una schiuma vellutata.",ingredients:["40 ml vodka","20 ml liquore al caffè","30 ml espresso","10 ml sciroppo di zucchero"],method:"Shakera energicamente con ghiaccio e filtra in una coppa fredda. Guarnisci con tre chicchi di caffè."},
-{name:"Moscow Mule",cat:"Grandi Classici",emoji:"🍋",desc:"Vodka, lime e ginger beer.",ingredients:["50 ml vodka","20 ml succo di lime","Ginger beer","Lime"],method:"Versa vodka e lime in una mug colma di ghiaccio. Completa con ginger beer e mescola."},
-{name:"Gin Tonic",cat:"Grandi Classici",emoji:"🍋",desc:"Semplice, aromatico e personalizzabile.",ingredients:["50 ml gin","150 ml acqua tonica","Ghiaccio","Guarnizione a scelta"],method:"Riempi un calice di ghiaccio. Versa il gin e completa con tonica fredda. Guarnisci a piacere."},
-{name:"Whisky Sour",cat:"Grandi Classici",emoji:"🥃",desc:"Il perfetto equilibrio tra dolce e acido.",ingredients:["50 ml whisky","25 ml succo di limone","20 ml sciroppo di zucchero","Albume pastorizzato facoltativo"],method:"Shakera gli ingredienti. Se usi l'albume, fai prima uno shake senza ghiaccio, poi uno con ghiaccio. Filtra in un bicchiere."},
-{name:"Old Fashioned",cat:"Grandi Classici",emoji:"🥃",desc:"Whisky, zucchero e bitter.",ingredients:["60 ml bourbon o rye whiskey","1 zolletta di zucchero","2-3 dash Angostura","Arancia"],method:"Sciogli lo zucchero con bitter e poca acqua. Aggiungi whisky e ghiaccio, mescola e guarnisci con arancia."},
-{name:"Manhattan",cat:"Grandi Classici",emoji:"🥃",desc:"Elegante, robusto e aromatico.",ingredients:["50 ml whisky rye","25 ml vermouth rosso","2 dash Angostura"],method:"Mescola gli ingredienti con ghiaccio in un mixing glass. Filtra in una coppa fredda e guarnisci con ciliegia."},
-{name:"Cosmopolitan",cat:"Grandi Classici",emoji:"🍸",desc:"Agrumato, fruttato e raffinato.",ingredients:["40 ml vodka citron","15 ml triple sec","30 ml cranberry","15 ml lime"],method:"Shakera con ghiaccio e filtra in una coppa fredda. Guarnisci con scorza d'arancia."},
-{name:"Piña Colada",cat:"Grandi Classici",emoji:"🍍",desc:"Un classico tropicale cremoso.",ingredients:["50 ml rum bianco","90 ml succo d'ananas","30 ml crema di cocco"],method:"Frulla o shakera gli ingredienti con ghiaccio e servi in un bicchiere grande."},
-{name:"Paloma",cat:"Grandi Classici",emoji:"🍊",desc:"Tequila e pompelmo, fresca e vivace.",ingredients:["50 ml tequila","15 ml succo di lime","Soda al pompelmo","Sale facoltativo"],method:"Versa tequila e lime in un bicchiere con ghiaccio. Completa con soda al pompelmo e mescola."},
-{name:"Tom Collins",cat:"Grandi Classici",emoji:"🍋",desc:"Gin, limone e soda.",ingredients:["50 ml gin","25 ml succo di limone","15 ml sciroppo di zucchero","Soda"],method:"Versa gin, limone e sciroppo in un bicchiere con ghiaccio. Completa con soda e mescola."},
-{name:"French 75",cat:"Grandi Classici",emoji:"🥂",desc:"Gin e bollicine in un cocktail elegante.",ingredients:["30 ml gin","15 ml succo di limone","10 ml sciroppo di zucchero","Champagne o spumante brut"],method:"Shakera gin, limone e sciroppo con ghiaccio. Filtra in un flute e completa con bollicine."},
-{name:"Boulevardier",cat:"Grandi Classici",emoji:"🥃",desc:"La versione whiskey del Negroni.",ingredients:["30 ml bourbon","30 ml bitter rosso","30 ml vermouth rosso"],method:"Mescola gli ingredienti con ghiaccio e filtra su ghiaccio fresco. Guarnisci con arancia."},
-{name:"Paper Plane",cat:"Grandi Classici",emoji:"✈️",desc:"Moderno, agrumato e amaro al punto giusto.",ingredients:["22,5 ml bourbon","22,5 ml Aperol","22,5 ml Amaro Nonino","22,5 ml succo di limone"],method:"Shakera tutti gli ingredienti con ghiaccio e filtra in una coppa fredda."},
-{name:"Last Word",cat:"Grandi Classici",emoji:"🍸",desc:"Un classico intenso e bilanciato.",ingredients:["22,5 ml gin","22,5 ml Chartreuse verde","22,5 ml maraschino","22,5 ml succo di lime"],method:"Shakera gli ingredienti con ghiaccio e filtra in una coppa fredda."},
-{name:"Penicillin",cat:"Grandi Classici",emoji:"🥃",desc:"Whisky, miele, limone e zenzero.",ingredients:["60 ml blended Scotch","20 ml succo di limone","20 ml sciroppo miele-zenzero","10 ml whisky torbato facoltativo"],method:"Shakera Scotch, limone e sciroppo con ghiaccio. Filtra su ghiaccio e aggiungi il whisky torbato in superficie, se desiderato."},
-{name:"Amaretto Sour",cat:"Grandi Classici",emoji:"🍋",desc:"Mandorla e agrumi in equilibrio.",ingredients:["50 ml amaretto","25 ml succo di limone","10 ml sciroppo di zucchero","Albume pastorizzato facoltativo"],method:"Shakera gli ingredienti con ghiaccio e filtra in un bicchiere basso."},
-{name:"Caipirinha",cat:"Grandi Classici",emoji:"🍋",desc:"Il classico brasiliano con cachaça.",ingredients:["60 ml cachaça","1 lime","2 cucchiaini di zucchero"],method:"Taglia il lime a spicchi e pestalo delicatamente con lo zucchero. Aggiungi ghiaccio e cachaça, mescola."},
-{name:"Caipiroska",cat:"Grandi Classici",emoji:"🍋",desc:"La variante alla vodka della Caipirinha.",ingredients:["50 ml vodka","1 lime","2 cucchiaini di zucchero"],method:"Pesta lime e zucchero nel bicchiere. Aggiungi ghiaccio e vodka, poi mescola."},
-{name:"Sex on the Beach",cat:"Grandi Classici",emoji:"🍑",desc:"Un cocktail fruttato e colorato.",ingredients:["40 ml vodka","20 ml liquore alla pesca","40 ml succo d'arancia","40 ml cranberry"],method:"Versa gli ingredienti in un bicchiere alto con ghiaccio e mescola."},
-{name:"Long Island Iced Tea",cat:"Grandi Classici",emoji:"🧊",desc:"Un mix deciso di distillati e agrumi.",ingredients:["15 ml vodka","15 ml gin","15 ml rum bianco","15 ml tequila","15 ml triple sec","25 ml limone","Cola"],method:"Versa i distillati, il limone e lo sciroppo in un bicchiere alto con ghiaccio. Completa con cola e mescola."},
-{name:"Dark 'n' Stormy",cat:"Grandi Classici",emoji:"🌩️",desc:"Rum scuro e ginger beer speziata.",ingredients:["60 ml rum scuro","100 ml ginger beer","15 ml succo di lime"],method:"Versa ginger beer e lime in un bicchiere con ghiaccio. Aggiungi il rum sopra e servi."},
-{name:"Mint Julep",cat:"Grandi Classici",emoji:"🌿",desc:"Bourbon e menta fresca.",ingredients:["60 ml bourbon","8-10 foglie di menta","10 ml sciroppo di zucchero"],method:"Pesta delicatamente la menta con lo sciroppo. Aggiungi bourbon e ghiaccio tritato, mescola e guarnisci con menta."},
-{name:"Gin Fizz",cat:"Grandi Classici",emoji:"🍋",desc:"Un gin sour allungato con soda.",ingredients:["45 ml gin","25 ml limone","10 ml sciroppo di zucchero","Soda"],method:"Shakera gin, limone e sciroppo con ghiaccio. Filtra in un bicchiere e completa con soda."},
-{name:"Bramble",cat:"Grandi Classici",emoji:"🫐",desc:"Gin, limone e mora.",ingredients:["50 ml gin","25 ml limone","12,5 ml sciroppo di zucchero","15 ml liquore alla mora"],method:"Shakera gin, limone e sciroppo. Versa su ghiaccio tritato e aggiungi il liquore alla mora."},
-{name:"Aviation",cat:"Grandi Classici",emoji:"💜",desc:"Un cocktail floreale e agrumato.",ingredients:["45 ml gin","15 ml maraschino","15 ml succo di limone","7,5 ml crème de violette"],method:"Shakera con ghiaccio e filtra in una coppa fredda."},
-{name:"Batch x Litro Negroni",cat:"Signature Drink",emoji:"🍊",desc:"Preparazione in batch per il servizio.",ingredients:["330 ml gin","330 ml bitter rosso","330 ml vermouth rosso"],method:"Unisci gli ingredienti in una bottiglia pulita, mescola e conserva in frigorifero. Per servire, versa una porzione da 90 ml su ghiaccio e guarnisci con arancia. Regola la quantità d'acqua se desideri pre-diluire il batch."},
-{name:"Sudtirol Negroni",cat:"Signature Drink",emoji:"🏔️",desc:"Un'interpretazione alpina del Negroni.",ingredients:["30 ml gin","30 ml bitter rosso","30 ml vermouth rosso","Scorza d'arancia"],method:"Mescola gli ingredienti con ghiaccio in un mixing glass. Filtra su ghiaccio fresco e guarnisci con scorza d'arancia. Per una versione davvero locale, scegli un gin o un vermouth altoatesino."}
+'use strict';
+
+const BASE_RECIPES = [
+{name:'Americano',category:'Aperitivi',method:'Build',ingredients:[['Bitter','40 ml'],['Vermouth','30 ml'],['Soda','Top']],note:'Zest di limone e arancia.'},
+{name:'Negroni',category:'Aperitivi',method:'Build',ingredients:[['Batch','90 ml']],note:'Zest di limone e arancia. La ricetta indica la versata del batch.'},
+{name:'Batch x Litro Negroni',category:'Aperitivi',method:'Batch',ingredients:[['Gin','266 ml'],['Vermouth','266 ml'],['Bitter','266 ml'],['Acqua','200 ml']],note:'Ricetta batch per litro, come riportato nel ricettario.'},
+{name:'Moscow Mule',category:'Aperitivi',method:'Build',ingredients:[['Vodka','60 ml'],['Lime','15 ml'],['Ginger Beer','Fill']],note:'Zenzero e lime.'},
+{name:'Linea Spritz',category:'Aperitivi',method:'Build',ingredients:[['Liquore a scelta','60 ml'],['Prosecco','90 ml'],['Soda','Top']],note:'Eccezione Hugo: misurare 20 ml di sambuco senza la parte di liquore.'},
+{name:'Ice T+ Fizz',category:'Aperitivi',method:'Shake & Strain',ingredients:[['T+','60 ml'],['Limone','30 ml'],['Zucchero','15 ml'],['Albume','5 ml'],['Soda','Fill']],note:'Limone essiccato.'},
+{name:'Naked & Famous',category:'Aperitivi',method:'Shake & Strain – Cobbler',ingredients:[['Mezcal','20 ml'],['Aperol','20 ml'],['Chartreuse','20 ml'],['Lime','20 ml']],note:''},
+{name:'Passion Royal',category:'Aperitivi',method:'Build',ingredients:[['Prosecco','90 ml'],['Purea Passion','20 ml'],['Ginger Ale','30 ml']],note:'Menta e lime.'},
+{name:'Ginger Lustig',category:'Aperitivi',method:'Build',ingredients:[['Prosecco','90 ml'],['Lime','10 ml'],['Ginger Beer','30 ml']],note:'Zenzero e lime.'},
+{name:'Lillet Wild Berry',category:'Aperitivi',method:'Build',ingredients:[['Lillet Rosè','60 ml'],['Tonica Wild Berry','Fill']],note:'Frutti di bosco, cetriolo e menta.'},
+
+{name:'Popcorn Fizz',category:'Signature Drink',method:'Shake & Strain',ingredients:[['Gin','60 ml'],['Limone','30 ml'],['Caramello','7,5 ml'],['Popcorn Syrup','7,5 ml']],note:'Batch ipotetico: versata 75 ml. Arance essiccate sopra; popcorn a riempire la box di popcorn.'},
+{name:'Vanilla Sky',category:'Signature Drink',method:'Build',ingredients:[['Vodka','50 ml'],['Lavanda Syrup','3 dash'],['Limone','25 ml'],['Lampone','20 ml'],['Panna','Top']],note:'Caramellina fragola e cacao.'},
+{name:'Sudtirol Negroni',category:'Signature Drink',method:'Build',ingredients:[['Batch','90 ml']],note:'Garnish: speck chips.'},
+{name:'Nonna’s Drunkn ApplePie',category:'Signature Drink',method:'Shake & Strain',ingredients:[['Vodka','40 ml'],['Liquore Mela','20 ml'],['Cannella Syrup','10 ml'],['Limone','15 ml'],['Purea Mela','30 ml']],note:'Batch ipotetico: versata 70 ml. Spuma sifone e cannella in polvere.'},
+{name:'Tiramisucca',category:'Signature Drink',method:'Shake & Strain',ingredients:[['Cognac','30 ml'],['Liquore Caffè','15 ml'],['Zabov','15 ml'],['Espresso','30 ml']],note:'Batch ipotetico: versata 60 ml.'},
+{name:'2 Nuts',category:'Signature Drink',method:'Shake & Strain',ingredients:[['Noselar','40 ml'],['Purea Passion','20 ml'],['Orzata','5 ml'],['Panna','Top']],note:'Cannella in polvere.'},
+{name:'Indian Penicillin',category:'Signature Drink',method:'Shake & Strain',ingredients:[['Whiskey','45 ml'],['Chay Syrup','15 ml'],['Honey Ginger','20 ml'],['Limone','20 ml'],['Laprohig','15 ml (float dopo la shakerata)']],note:'Zenzero e lime.'},
+{name:'Daiquiri Loco',category:'Signature Drink',method:'Shake & Strain – Cobbler',ingredients:[['Rhum','40 ml'],['Liquore Rhum alla Banana','20 ml'],['Lime','30 ml'],['Sciroppo Banana','15 ml']],note:'Garnish da stabilire.'},
+
+{name:'Espresso Martini',category:'Grandi Classici',method:'Shake & Strain',ingredients:[['Vodka','40 ml'],['Liquore Caffè','20 ml'],['Espresso','30 ml'],['Zucchero','10 ml']],note:'Nel ricettario è riportata anche una Sour Line: distillato 45 ml, limone 30 ml, zucchero 15 ml, foam 15 ml.'},
+{name:'Pornstar Martini',category:'Grandi Classici',method:'Shake & Strain',ingredients:[['Vodka','60 ml'],['Vanilla Syrup','20 ml'],['Purea Passion Fruit','20 ml'],['Lime','15 ml']],note:'Shot di Champagne/Prosecco e mezzo passion fruit caramellizzato.'},
+{name:'Clover Club',category:'Grandi Classici',method:'Shake & Strain',ingredients:[['Gin','45 ml'],['Limone','25 ml'],['Zucchero','15 ml'],['Foam','10 ml'],['Lamponi freschi','7–8']],note:''},
+{name:'Margarita',category:'Grandi Classici',method:'Shake & Strain',ingredients:[['Tequila','45 ml'],['Cointreau','15 ml'],['Lime','25 ml'],['Agave','2 bsp']],note:'Crusta di sale.'},
+{name:'Tommy’s Margarita',category:'Grandi Classici',method:'Shake & Strain in RockGlass',ingredients:[['Tequila','60 ml'],['Lime','30 ml'],['Agave','2 bsp']],note:'Guarnizione: lime.'},
+{name:'Basil Smash',category:'Grandi Classici',method:'Shake & Double Strain',ingredients:[['Gin','60 ml'],['Limone','30 ml'],['Zucchero','15 ml'],['Basilico','8–10 foglie']],note:''},
+{name:'Mojito',category:'Grandi Classici',method:'Shake & Strain',ingredients:[['Rhum','50 ml'],['Lime','20 ml'],['Zucchero','20 ml'],['Menta','8–12 foglie'],['Soda','Fill']],note:'Menta e lime essiccato.'},
+{name:'Daiquiri',category:'Grandi Classici',method:'Shake & Strain – Cobbler',ingredients:[['Rhum','60 ml'],['Lime','30 ml'],['Zucchero','15 ml']],note:''},
+{name:'Paloma',category:'Grandi Classici',method:'Build',ingredients:[['Tequila','45 ml'],['Lime','20 ml'],['Agave','2 bsp'],['Galvanina Pompelmo','Fill']],note:'Crusta di sale e pompelmo.'},
+{name:'Long Island',category:'Grandi Classici',method:'Build',ingredients:[['Gin','15 ml'],['Vodka','15 ml'],['Rhum','15 ml'],['Triple Sec','15 ml'],['Limone','30 ml'],['Zucchero','15 ml'],['Cola','Top']],note:'Batch ipotetico: versata 60 ml. Guarnizione limone.'},
+{name:'BloodyMary',category:'Grandi Classici',method:'Throwing',ingredients:[['Vodka','45 ml'],['Limone','20 ml'],['Pomodoro','90 ml'],['Worcestershire','4 dash'],['Tabasco','2 dash'],['Sale e pepe','Un pizzico']],note:'Guarnizione: limone.'},
+{name:'Mai Tai',category:'Grandi Classici',method:'Shake & Strain',ingredients:[['Rhum chiaro','30 ml'],['Rhum scuro','20 ml'],['Cointreau','15 ml'],['Lime','30 ml'],['Orzata','2 bsp']],note:'Lime e menta.'},
+{name:'Cosmopolitan',category:'Grandi Classici',method:'Shake & Strain',ingredients:[['Citrus Vodka','45 ml'],['Cointreau','15 ml'],['Cranberry','30 ml'],['Lime','20 ml']],note:''},
+{name:'Fizz',category:'Grandi Classici',method:'Shake & Strain',ingredients:[['Distillato a scelta','50 ml'],['Limone','30 ml'],['Zucchero','15 ml'],['Foam','10 ml'],['Soda','Top']],note:'Scegliere il distillato desiderato.'},
+{name:'Manhattan',category:'Grandi Classici',method:'Stir & Strain',ingredients:[['Bourbon','70 ml'],['Sweet Vermouth','30 ml'],['Angostura','2 dash']],note:''},
+{name:'Old Fashioned',category:'Grandi Classici',method:'Stir & Strain',ingredients:[['Bourbon','60 ml'],['Zucchero','15 ml'],['Angostura','3 dash']],note:'Chiedere sempre se lo preferiscono più secco e diminuire lo zucchero se richiesto.'},
+{name:'Old Cuban',category:'Grandi Classici',method:'Shake & Strain',ingredients:[['Rhum','45 ml'],['Lime','20 ml'],['Zucchero','15 ml'],['Angostura','2 dash'],['Menta','8–10 foglie'],['Prosecco/Champagne','Top']],note:'Menta e lime.'}
 ];
 
-const grid=document.getElementById("grid");
-const search=document.getElementById("search");
-const count=document.getElementById("count");
-const modal=document.getElementById("modal");
-const detail=document.getElementById("detail");
-let category="Tutti";
-let favorites=JSON.parse(localStorage.getItem("gigi-favorites")||"[]");
+const STORAGE_CUSTOM='gigis-bar-custom-recipes-v2';
+const STORAGE_FAV='gigis-bar-favorites-v2';
+let customRecipes=[],favorites=[],activeCategory='Tutti',searchTerm='',adminLogged=false;
 
-function norm(s){return s.toLocaleLowerCase("it").normalize("NFD").replace(/[\u0300-\u036f]/g,"")}
-function render(){
-  const q=norm(search.value.trim());
-  const found=recipes.map((r,i)=>({...r,i})).filter(r=>{
-    const matchesCategory=category==="Tutti"||(category==="Preferiti"?favorites.includes(r.name):r.cat===category);
-    const haystack=norm([r.name,r.cat,r.desc,...r.ingredients,r.method].join(" "));
-    return matchesCategory&&haystack.includes(q);
-  });
-  count.textContent=found.length+" cocktail";
-  grid.innerHTML="";
-  if(!found.length){grid.innerHTML='<div class="empty">Nessun cocktail trovato.<br>Prova un altro nome o ingrediente.</div>';return}
-  found.forEach(r=>{
-    const el=document.createElement("article");
-    el.className="card";
-    el.innerHTML=`<button class="heart" aria-label="Preferito">${favorites.includes(r.name)?"♥":"♡"}</button>
-    <div class="emoji">${r.emoji}</div><h3>${r.name}</h3><p>${r.desc}</p><span class="tag">${r.cat}</span>`;
-    el.querySelector(".heart").addEventListener("click",e=>{
-      e.stopPropagation();
-      if(favorites.includes(r.name))favorites=favorites.filter(x=>x!==r.name);
-      else favorites.push(r.name);
-      localStorage.setItem("gigi-favorites",JSON.stringify(favorites));render();
-    });
-    el.addEventListener("click",()=>openRecipe(r));
-    grid.appendChild(el);
-  });
+try{customRecipes=JSON.parse(localStorage.getItem(STORAGE_CUSTOM)||'[]');if(!Array.isArray(customRecipes))customRecipes=[];}catch(e){customRecipes=[];}
+try{favorites=JSON.parse(localStorage.getItem(STORAGE_FAV)||'[]');if(!Array.isArray(favorites))favorites=[];}catch(e){favorites=[];}
+
+const $=id=>document.getElementById(id);
+const categories=['Tutti','Aperitivi','Signature Drink','Grandi Classici','★ Preferiti'];
+const allRecipes=()=>[...BASE_RECIPES,...customRecipes];
+
+function normalize(s){return String(s??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('it');}
+function saveCustom(){localStorage.setItem(STORAGE_CUSTOM,JSON.stringify(customRecipes));}
+function saveFavorites(){localStorage.setItem(STORAGE_FAV,JSON.stringify(favorites));}
+function el(tag,cls,txt){const n=document.createElement(tag);if(cls)n.className=cls;if(txt!==undefined)n.textContent=txt;return n;}
+
+function renderFilters(){
+ const f=$('filters');f.replaceChildren();
+ categories.forEach(c=>{
+  const b=el('button','chip'+(activeCategory===c?' active':''),c);
+  b.type='button';b.setAttribute('aria-pressed',String(activeCategory===c));
+  b.onclick=()=>{activeCategory=c;renderFilters();renderList();};
+  f.appendChild(b);
+ });
 }
-function openRecipe(r){
-  detail.innerHTML=`<div style="font-size:38px">${r.emoji}</div>
-  <div class="category">${r.cat}</div><h2>${r.name}</h2><p style="color:var(--muted)">${r.desc}</p>
-  <h4>INGREDIENTI</h4><ul>${r.ingredients.map(x=>`<li>${x}</li>`).join("")}</ul>
-  <h4>PREPARAZIONE</h4><div class="method">${r.method}</div>
-  <button id="modalFav" class="filter" style="margin-top:22px">${favorites.includes(r.name)?"♥ Rimuovi dai preferiti":"♡ Aggiungi ai preferiti"}</button>`;
-  document.getElementById("modalFav").onclick=()=>{
-    if(favorites.includes(r.name))favorites=favorites.filter(x=>x!==r.name);
-    else favorites.push(r.name);
-    localStorage.setItem("gigi-favorites",JSON.stringify(favorites));
-    openRecipe(r);render();
+
+function renderList(){
+ const all=allRecipes(),q=normalize(searchTerm);
+ const found=all.filter(recipe=>{
+  const hay=normalize([recipe.name,recipe.category,recipe.method,recipe.note,recipe.preparation,...recipe.ingredients.flat()].join(' '));
+  const catOK=activeCategory==='Tutti'||(activeCategory==='★ Preferiti'?favorites.includes(recipe.name):recipe.category===activeCategory);
+  return catOK&&hay.includes(q);
+ });
+ $('listTitle').textContent=activeCategory==='Tutti'?'Tutti i cocktail':activeCategory;
+ $('count').textContent=found.length+(found.length===1?' risultato':' risultati');
+ const list=$('list');list.replaceChildren();
+ if(!found.length){list.appendChild(el('div','empty','Nessun cocktail trovato. Prova un altro nome o ingrediente.'));return;}
+ found.forEach(recipe=>{
+  const card=el('article','drink');card.tabIndex=0;card.setAttribute('role','button');card.setAttribute('aria-label','Apri '+recipe.name);
+  const star=el('button','star',favorites.includes(recipe.name)?'★':'☆');
+  star.type='button';star.setAttribute('aria-label','Preferito');
+  star.onclick=e=>{
+   e.stopPropagation();
+   favorites=favorites.includes(recipe.name)?favorites.filter(n=>n!==recipe.name):[...favorites,recipe.name];
+   saveFavorites();renderList();
   };
-  modal.classList.add("show");
+  card.append(star,el('div','cat',recipe.category),el('h3','',recipe.name),el('div','method',recipe.method+(recipe.note?' · '+recipe.note:'')));
+  card.onclick=()=>openRecipe(recipe);
+  card.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openRecipe(recipe);}};
+  list.appendChild(card);
+ });
 }
-document.getElementById("close").onclick=()=>modal.classList.remove("show");
-modal.addEventListener("click",e=>{if(e.target===modal)modal.classList.remove("show")});
-document.addEventListener("keydown",e=>{if(e.key==="Escape")modal.classList.remove("show")});
-search.addEventListener("input",render);
-document.getElementById("filters").addEventListener("click",e=>{
-  const b=e.target.closest("button");if(!b)return;
-  category=b.dataset.cat;
-  document.querySelectorAll(".filter").forEach(x=>x.classList.toggle("active",x===b));
-  render();
+
+function openRecipe(recipe){
+ $('drinkCategory').textContent=recipe.category;
+ $('drinkTitle').textContent=recipe.name;
+ $('drinkMethod').textContent=recipe.method||'Preparazione non specificata';
+ const ul=$('ingredients');ul.replaceChildren();
+ recipe.ingredients.forEach(([name,amount])=>{
+  const li=el('li');li.append(el('span','',name),el('span','',amount));ul.appendChild(li);
+ });
+ const note=$('drinkNote');let txt=recipe.note||'';
+ if(recipe.preparation)txt+=(txt?'\n\n':'')+'Preparazione: '+recipe.preparation;
+ note.textContent=txt;note.hidden=!txt;
+ $('overlay').classList.add('open');document.body.style.overflow='hidden';
+}
+
+function closeRecipe(){$('overlay').classList.remove('open');document.body.style.overflow='';}
+$('search').addEventListener('input',()=>{searchTerm=$('search').value;renderList();});
+$('close').onclick=closeRecipe;
+$('overlay').addEventListener('click',e=>{if(e.target===$('overlay'))closeRecipe();});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeRecipe();});
+
+$('adminOpen').onclick=()=>{$('adminPanel').classList.toggle('show');if(adminLogged)showAdmin();};
+$('adminCancel').onclick=()=>$('adminPanel').classList.remove('show');
+
+function showAdmin(){
+ $('loginArea').hidden=adminLogged;
+ $('manageArea').hidden=!adminLogged;
+ if(adminLogged)renderCustomList();
+}
+
+$('loginForm').addEventListener('submit',e=>{
+ e.preventDefault();
+ const user=$('username').value.trim(),pass=$('password').value;
+ if(user==='admin'&&pass==='GigiBar2026!'){
+  adminLogged=true;$('loginError').textContent='';showAdmin();
+ }else{$('loginError').textContent='Credenziali non corrette.';}
 });
-render();
+
+$('logout').onclick=()=>{adminLogged=false;showAdmin();$('password').value='';};
+
+$('recipeForm').addEventListener('submit',e=>{
+ e.preventDefault();if(!adminLogged)return;
+ const name=$('recipeName').value.trim();
+ const ingredients=$('recipeIngredients').value.split('\n').map(x=>x.trim()).filter(Boolean).map(line=>{
+  const parts=line.split(/\s+[—–-]\s+/);
+  return parts.length>1?[parts.slice(0,-1).join(' — '),parts[parts.length-1]]:[line,''];
+ });
+ if(!name||!ingredients.length){$('saveMessage').textContent='Inserisci il nome e almeno un ingrediente.';return;}
+ if(allRecipes().some(r=>normalize(r.name)===normalize(name))){$('saveMessage').textContent='Esiste già un cocktail con questo nome.';return;}
+ customRecipes.push({
+  name,category:$('recipeCategory').value,
+  method:$('recipeMethod').value.trim()||'Non specificata',
+  ingredients,note:$('recipeGarnish').value.trim(),
+  preparation:$('recipePreparation').value.trim(),custom:true
+ });
+ saveCustom();$('recipeForm').reset();
+ $('saveMessage').textContent='Cocktail salvato! Ora è disponibile nella ricerca.';
+ renderList();renderCustomList();
+});
+
+function renderCustomList(){
+ const box=$('customList');box.replaceChildren();
+ if(!customRecipes.length){box.appendChild(el('p','small','Non hai ancora aggiunto cocktail personalizzati.'));return;}
+ customRecipes.forEach((r,i)=>{
+  const row=el('div','admin-row');
+  row.appendChild(el('strong','',r.name+' · '+r.category));
+  const del=el('button','btn danger','Elimina');del.type='button';
+  del.onclick=()=>{
+   if(!confirm('Eliminare '+r.name+'?'))return;
+   customRecipes.splice(i,1);saveCustom();
+   favorites=favorites.filter(n=>n!==r.name);saveFavorites();
+   renderList();renderCustomList();
+  };
+  row.appendChild(del);box.appendChild(row);
+ });
+}
+
+$('clearCustom').onclick=()=>{
+ if(!adminLogged)return;
+ if(!confirm('Eliminare tutti i cocktail aggiunti da te?'))return;
+ const names=customRecipes.map(r=>r.name);
+ customRecipes=[];favorites=favorites.filter(n=>!names.includes(n));
+ saveCustom();saveFavorites();renderList();renderCustomList();
+};
+
+renderFilters();
+renderList();
 </script>
 </body>
 </html>
