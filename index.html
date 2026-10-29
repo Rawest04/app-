@@ -160,8 +160,33 @@ h1{font-size:29px;margin:8px 0}
 </div>
 <div id="saveMessage" class="status" role="status"></div>
 </form>
+
 <h2 style="margin-top:28px">Gestisci tutti i cocktail</h2>
 <div id="customList"></div>
+
+<div id="ownerArea" hidden>
+<hr style="border:0;border-top:1px solid var(--line);margin:22px 0">
+<h2>Gestione utenti · Proprietario</h2>
+<p class="small">Assegna o revoca il ruolo di amministratore inserendo l’email dell’account già registrato.</p>
+<form id="roleForm">
+<div class="form-grid">
+<div class="field">
+<label for="roleEmail">Email dell’utente</label>
+<input id="roleEmail" type="email" required placeholder="utente@email.com">
+</div>
+<div class="field">
+<label for="roleChoice">Ruolo da assegnare</label>
+<select id="roleChoice">
+<option value="admin">Amministratore</option>
+<option value="user">Utente normale</option>
+</select>
+</div>
+</div>
+<div class="form-actions">
+<button class="btn primary" type="submit">Aggiorna ruolo</button>
+</div>
+<div id="roleStatus" class="status" role="status"></div>
+</form>
 </div>
 </section>
 
@@ -202,6 +227,8 @@ h1{font-size:29px;margin:8px 0}
 
 const SUPABASE_URL='https://nxmobfegepxldofyanvi.supabase.co';
 const SUPABASE_PUBLISHABLE_KEY='sb_publishable_yAeKKXL6I0e8iSJD-ABZeg_MB0kbkd8';
+const OWNER_EMAIL='ethan.bertolazzi04@gmail.com';
+
 const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
 
 const BASE_RECIPES = [
@@ -245,7 +272,8 @@ const BASE_RECIPES = [
 const $=id=>document.getElementById(id);
 const categories=['Tutti','Aperitivi','Signature Drink','Grandi Classici','★ Preferiti'];
 const FAV_KEY='gigis-bar-favorites-v3';
-let recipes=[],favorites=[],activeCategory='Tutti',searchTerm='',currentUser=null,isAdmin=false,editingId=null,channel=null;
+
+let recipes=[],favorites=[],activeCategory='Tutti',searchTerm='',currentUser=null,isAdmin=false,isOwner=false,editingId=null,channel=null;
 
 try{
 favorites=JSON.parse(localStorage.getItem(FAV_KEY)||'[]');
@@ -301,14 +329,19 @@ custom:r.custom??true
 
 function showAuth(){
 const logged=!!currentUser;
+
 $('loginArea').hidden=logged;
 $('memberArea').hidden=!logged;
-$('manageArea').hidden=!(logged&&isAdmin);
+$('manageArea').hidden=!(logged&&(isAdmin||isOwner));
+$('ownerArea').hidden=!(logged&&isOwner);
 $('recipeArea').hidden=!logged;
 
 if(logged){
 $('memberEmail').textContent=currentUser.email||'Account';
-$('roleMessage').textContent=isAdmin
+
+$('roleMessage').textContent=isOwner
+?'Sei il proprietario: puoi gestire le ricette e assegnare i ruoli.'
+:isAdmin
 ?'Sei amministratore: puoi aggiungere, modificare ed eliminare ricette.'
 :'Account collaboratore: puoi consultare il ricettario, ma non modificarlo.';
 }
@@ -377,8 +410,10 @@ status('loginError','Account creato. Se richiesto, conferma l’email ricevuta e
 
 async function logout(){
 await db.auth.signOut();
+
 currentUser=null;
 isAdmin=false;
+isOwner=false;
 recipes=[];
 
 if(channel){
@@ -409,7 +444,7 @@ async function seedIfEmpty(){
 const {count,error}=await db.from('recipes').select('id',{count:'exact',head:true});
 if(error)throw error;
 
-if(count===0&&isAdmin){
+if(count===0&&(isAdmin||isOwner)){
 const rows=BASE_RECIPES.map(r=>({
 ...recipePayload({...r,custom:false}),
 name:r.name
@@ -425,10 +460,11 @@ const {data,error}=await db.from('recipes').select('*').order('name');
 if(error)throw error;
 
 recipes=(data||[]).map(mapRecipe);
+
 renderFilters();
 renderList();
 
-if(isAdmin)renderAdminList();
+if(isAdmin||isOwner)renderAdminList();
 }
 
 async function startRealtime(){
@@ -453,6 +489,9 @@ async function onSession(session){
 currentUser=session?.user||null;
 isAdmin=false;
 
+isOwner=!!currentUser&&
+String(currentUser.email||'').toLowerCase()===OWNER_EMAIL.toLowerCase();
+
 if(!currentUser){
 recipes=[];
 
@@ -466,7 +505,8 @@ return;
 }
 
 try{
-isAdmin=await getRole();
+isAdmin=isOwner?true:await getRole();
+
 showAuth();
 await seedIfEmpty();
 await loadRecipes();
@@ -476,6 +516,61 @@ status('loginError',e.message||'Errore nel caricamento del ricettario.','error')
 console.error(e);
 }
 }
+
+$('roleForm').addEventListener('submit',async event=>{
+event.preventDefault();
+
+if(!isOwner){
+status('roleStatus','Operazione consentita solo al proprietario.','error');
+return;
+}
+
+const email=$('roleEmail').value.trim().toLowerCase();
+const role=$('roleChoice').value;
+
+if(!email){
+status('roleStatus','Inserisci un indirizzo email valido.','error');
+return;
+}
+
+if(email===OWNER_EMAIL.toLowerCase()){
+status('roleStatus','Non puoi modificare il ruolo del proprietario.','error');
+return;
+}
+
+const button=$('roleForm').querySelector('button[type="submit"]');
+
+button.disabled=true;
+button.textContent='Aggiornamento…';
+
+status('roleStatus','Aggiornamento del ruolo in corso…');
+
+try{
+const {data,error}=await db.functions.invoke('manage-user-role',{
+body:{email,role}
+});
+
+if(error)throw error;
+if(data?.error)throw new Error(data.error);
+
+status(
+'roleStatus',
+role==='admin'
+?'Ruolo amministratore assegnato.'
+:'Ruolo amministratore revocato; utente normale.',
+'ok'
+);
+
+$('roleForm').reset();
+
+}catch(error){
+console.error(error);
+status('roleStatus',error.message||'Errore durante l’aggiornamento del ruolo.','error');
+}finally{
+button.disabled=false;
+button.textContent='Aggiorna ruolo';
+}
+});
 
 db.auth.onAuthStateChange((_event,session)=>{
 setTimeout(()=>onSession(session),0);
@@ -487,6 +582,7 @@ f.replaceChildren();
 
 categories.forEach(c=>{
 const b=el('button','chip'+(activeCategory===c?' active':''),c);
+
 b.type='button';
 b.setAttribute('aria-pressed',String(activeCategory===c));
 
@@ -539,11 +635,13 @@ return;
 
 found.forEach(r=>{
 const card=el('article','drink');
+
 card.tabIndex=0;
 card.setAttribute('role','button');
 card.setAttribute('aria-label','Apri '+r.name);
 
 const star=el('button','star',favorites.includes(r.name)?'★':'☆');
+
 star.type='button';
 star.setAttribute('aria-label','Preferito');
 
@@ -588,10 +686,12 @@ ul.replaceChildren();
 
 r.ingredients.forEach(pair=>{
 const li=el('li');
+
 li.append(
 el('span','',pair[0]||''),
 el('span','',pair[1]||'')
 );
+
 ul.appendChild(li);
 });
 
@@ -634,6 +734,7 @@ return text.split('\n')
 .filter(Boolean)
 .map(line=>{
 const parts=line.split(/\s+[—–-]\s+/);
+
 return parts.length>1
 ?[parts.slice(0,-1).join(' — '),parts[parts.length-1]]
 :[line,''];
@@ -652,7 +753,7 @@ $('cancelEdit').onclick=clearEditor;
 $('recipeForm').addEventListener('submit',async e=>{
 e.preventDefault();
 
-if(!isAdmin)return;
+if(!isAdmin&&!isOwner)return;
 
 const name=$('recipeName').value.trim();
 const ingredients=parseIngredients($('recipeIngredients').value);
@@ -697,7 +798,9 @@ return;
 }
 
 clearEditor();
+
 status('saveMessage','Cocktail salvato nel ricettario condiviso.','ok');
+
 await loadRecipes();
 });
 
@@ -716,6 +819,7 @@ recipes.forEach(r=>{
 const row=el('div','admin-row');
 const label=el('strong','',r.name+' · '+r.category);
 const actions=el('div','form-actions');
+
 actions.style.marginTop='0';
 
 const edit=el('button','btn','Modifica');
@@ -739,6 +843,7 @@ $('saveRecipe').textContent='Salva modifiche';
 status('saveMessage','Stai modificando: '+r.name);
 
 $('recipeName').focus();
+
 $('recipeForm').scrollIntoView({
 behavior:'smooth',
 block:'start'
