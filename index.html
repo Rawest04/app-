@@ -391,21 +391,27 @@ return;
 
 status('loginError','Creazione account in corso…');
 
-const {data,error}=await db.auth.signUp({
+const { data, error } = await db.auth.signUp({
 email,
 password,
-options:{emailRedirectTo:location.origin+location.pathname}
+options: {
+  emailRedirectTo: window.location.origin + window.location.pathname
+}
 });
 
-if(error){
-status('loginError',error.message,'error');
+if (error) {
+status('loginError', error.message, 'error');
 return;
 }
 
-if(data.session){
-status('loginError','Account creato. Accesso effettuato.','ok');
-}else{
-status('loginError','Account creato. Se richiesto, conferma l’email ricevuta e poi accedi.','ok');
+if (data.session) {
+status('loginError', 'Account creato! Accesso effettuato.', 'ok');
+} else {
+status(
+  'loginError',
+  'Account creato! Apri il link ricevuto via email per confermare l’indirizzo, poi torna qui ed effettua l’accesso.',
+  'ok'
+);
 }
 };
 
