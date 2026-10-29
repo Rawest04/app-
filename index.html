@@ -8,71 +8,124 @@
 <meta name="apple-mobile-web-app-title" content="Gigi's Bar">
 <title>Gigi's Bar · Cocktail Finder</title>
 <style>
-:root{color-scheme:dark;--bg:#111211;--panel:#1c1e1d;--gold:#d7b56d;--text:#f5f3ed;--muted:#a5aaa5;--line:#373a36;--red:#a44d43}
+:root{color-scheme:dark;--bg:#111311;--panel:#1b201d;--panel-soft:#202621;--gold:#d9b66f;--gold-bright:#ebcb86;--text:#f5f3ed;--muted:#a7afa7;--line:#343c35;--red:#a44d43;--green:#a9c99f}
 *{box-sizing:border-box}
-body{margin:0;background:radial-gradient(ellipse at top,#29271f 0,#111211 55%);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;min-height:100vh}
-.app{max-width:950px;margin:auto;padding:calc(22px + env(safe-area-inset-top)) 16px calc(35px + env(safe-area-inset-bottom))}
-.brand{font-size:11px;letter-spacing:2.8px;text-transform:uppercase;color:var(--gold)}
-h1{font-size:29px;margin:8px 0}
-.sub{font-size:13px;color:var(--muted)}
-.top{display:flex;align-items:center;justify-content:space-between;gap:15px}
-.admin-btn,.btn{border:1px solid var(--gold);border-radius:11px;padding:11px 14px;background:transparent;color:var(--gold);font-weight:600;cursor:pointer}
-.search-wrap{position:sticky;top:0;z-index:2;padding:14px 0;background:linear-gradient(#111211 82%,transparent)}
-.search{width:100%;padding:16px;border:1px solid var(--line);border-radius:14px;background:#202220;color:var(--text);font-size:16px;outline:none}
-.search:focus,input:focus,textarea:focus,select:focus{border-color:var(--gold);outline:none}
-.filters{display:flex;gap:8px;overflow-x:auto;padding:0 0 15px;scrollbar-width:none}
-.chip{flex:0 0 auto;border:1px solid var(--line);border-radius:25px;padding:10px 13px;background:var(--panel);color:var(--muted);font-size:13px;cursor:pointer}
-.chip.active{background:var(--gold);color:#181710;border-color:var(--gold);font-weight:700}
-.heading{display:flex;justify-content:space-between;align-items:center;margin:3px 0 12px}
-.heading h2{font-size:17px;margin:0}
-.count{font-size:12px;color:var(--muted)}
-.list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
-.drink{position:relative;min-height:130px;text-align:left;padding:15px;border:1px solid var(--line);border-radius:15px;background:linear-gradient(145deg,#222522,#181a19);color:var(--text);cursor:pointer}
+body{margin:0;background:radial-gradient(ellipse at 50% -18%,#343123 0,transparent 48%),linear-gradient(180deg,#151915 0,#101210 54%);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;min-height:100vh}
+button,input,textarea,select{font:inherit}
+button{transition:background-color .18s ease,border-color .18s ease,color .18s ease,transform .18s ease}
+button:focus-visible,[tabindex="0"]:focus-visible{outline:2px solid var(--gold-bright);outline-offset:3px}
+.app{max-width:1080px;margin:auto;padding:calc(30px + env(safe-area-inset-top)) 24px calc(48px + env(safe-area-inset-bottom))}
+.brand{font-size:10px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--gold)}
+h1{font-family:Georgia,"Times New Roman",serif;font-size:clamp(32px,5vw,46px);font-weight:400;letter-spacing:-1.2px;margin:10px 0 6px}
+.sub{font-size:14px;color:var(--muted);line-height:1.6}
+.top{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:0 0 26px;border-bottom:1px solid #ffffff12}
+.admin-btn,.btn{min-height:42px;border:1px solid #746744;border-radius:10px;padding:10px 15px;background:#211f19;color:var(--gold-bright);font-size:13px;font-weight:650;cursor:pointer}
+.admin-btn:hover,.btn:hover{border-color:var(--gold);background:#302a1d}
+.admin-menu{position:relative;flex:0 0 auto}
+.admin-btn{white-space:nowrap;display:flex;align-items:center;gap:10px}
+.menu-chevron{font-size:10px;transition:transform .18s ease}
+.admin-btn[aria-expanded="true"] .menu-chevron{transform:rotate(180deg)}
+.dropdown{position:absolute;top:calc(100% + 9px);right:0;z-index:5;width:235px;padding:6px;border:1px solid #45483c;border-radius:12px;background:#1c211d;box-shadow:0 14px 36px #0008}
+.dropdown[hidden]{display:none}
+.dropdown button{display:flex;width:100%;align-items:center;gap:10px;border:0;border-radius:8px;padding:11px 12px;background:transparent;color:var(--text);text-align:left;font-size:13px;cursor:pointer}
+.dropdown button:hover,.dropdown button:focus-visible{background:#2b3028;color:var(--gold-bright)}
+.dropdown button[hidden]{display:none}
+.dropdown-divider{height:1px;margin:5px 7px;background:var(--line)}
+.admin-view{scroll-margin-top:22px}
+.search-wrap{position:sticky;top:0;z-index:2;padding:18px 0 13px;background:linear-gradient(#111411 78%,transparent)}
+.search{width:100%;padding:16px 18px 16px 46px;border:1px solid var(--line);border-radius:13px;background:var(--panel-soft);color:var(--text);font-size:15px;outline:none;box-shadow:0 8px 24px #0002}
+#recipeArea:not([hidden]) .search-wrap:before{content:"⌕";position:absolute;left:17px;top:27px;color:var(--gold);font-size:25px;line-height:1;pointer-events:none}
+.search:focus,input:focus,textarea:focus,select:focus{border-color:var(--gold);outline:none;box-shadow:0 0 0 3px #d9b66f20}
+.filters{display:flex;gap:9px;overflow-x:auto;padding:2px 0 20px;scrollbar-width:none}
+.filters::-webkit-scrollbar{display:none}
+.admin-tools{margin:18px 0 12px}
+.admin-search{width:100%;padding:13px 15px;border:1px solid var(--line);border-radius:10px;background:#121612;color:var(--text);font-size:14px;outline:none}
+.admin-search::placeholder{color:#777e75}
+.admin-category-filters{display:flex;gap:8px;overflow-x:auto;padding:12px 0 4px;scrollbar-width:none}
+.admin-category-filters::-webkit-scrollbar{display:none}
+.admin-count{margin:12px 0;font-size:12px;color:var(--muted)}
+.chip{flex:0 0 auto;border:1px solid var(--line);border-radius:25px;padding:9px 14px;background:#1a1e1b;color:var(--muted);font-size:12px;font-weight:600;cursor:pointer}
+.chip:hover{border-color:#77704e;color:var(--text)}
+.chip.active{background:var(--gold);color:#1b1a14;border-color:var(--gold);font-weight:750}
+.heading{display:flex;justify-content:space-between;align-items:center;margin:4px 0 15px}
+.heading h2{font-family:Georgia,"Times New Roman",serif;font-size:23px;font-weight:400;letter-spacing:-.3px;margin:0}
+.count{font-size:12px;color:var(--muted);padding:6px 10px;border:1px solid var(--line);border-radius:20px}
+.list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}
+.drink{position:relative;min-height:150px;text-align:left;padding:19px;border:1px solid #353d36;border-radius:14px;background:linear-gradient(145deg,#222823,#191e1a);color:var(--text);cursor:pointer;overflow:hidden}
+.drink:before{content:"";position:absolute;inset:0 auto 0 0;width:2px;background:linear-gradient(transparent,var(--gold),transparent);opacity:.5}
+.drink:hover{transform:translateY(-2px);border-color:#77704e;background:linear-gradient(145deg,#2a3029,#1c211d);box-shadow:0 10px 25px #0003}
 .drink:active{transform:scale(.985)}
-.cat{font-size:10px;color:var(--gold);letter-spacing:1px;text-transform:uppercase;padding-right:25px}
-.drink h3{font-family:Georgia,serif;font-size:17px;line-height:1.25;margin:11px 0 7px;padding-right:5px}
-.method{font-size:11px;color:var(--muted)}
-.star{position:absolute;right:10px;top:8px;background:none;border:0;color:var(--gold);font-size:22px;padding:2px;cursor:pointer}
-.empty{grid-column:1/-1;text-align:center;padding:32px 12px;border:1px dashed var(--line);border-radius:14px;color:var(--muted);line-height:1.6}
-.overlay{display:none;position:fixed;inset:0;z-index:10;background:#000b;align-items:flex-end;justify-content:center}
+.cat{font-size:10px;font-weight:700;color:var(--gold);letter-spacing:1.35px;text-transform:uppercase;padding-right:30px}
+.drink h3{font-family:Georgia,"Times New Roman",serif;font-size:20px;font-weight:400;line-height:1.25;margin:14px 0 9px;padding-right:5px}
+.method{font-size:11px;color:var(--muted);line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.star{position:absolute;right:11px;top:9px;background:transparent;border:0;border-radius:8px;color:var(--gold);font-size:22px;line-height:1;padding:5px;cursor:pointer}
+.star:hover{background:#d9b66f18;transform:scale(1.1)}
+.empty{grid-column:1/-1;text-align:center;padding:40px 18px;border:1px dashed var(--line);border-radius:14px;color:var(--muted);line-height:1.7;background:#1a1e1b80}
+.overlay{display:none;position:fixed;inset:0;z-index:10;background:#060806c9;backdrop-filter:blur(7px);align-items:flex-end;justify-content:center}
 .overlay.open{display:flex}
-.modal{width:100%;max-width:700px;max-height:91dvh;overflow:auto;background:#191b1a;border:1px solid #42443d;border-radius:23px 23px 0 0;padding:22px 20px calc(24px + env(safe-area-inset-bottom))}
-.modal-head{display:flex;justify-content:space-between;gap:12px}
-.modal h2{font-size:27px;margin:7px 0 13px;color:var(--gold)}
-.close{width:38px;height:38px;flex-shrink:0;border:1px solid var(--line);border-radius:50%;background:var(--panel);color:white;font-size:22px;cursor:pointer}
-.pill{display:inline-block;background:#302a1e;color:var(--gold);border-radius:8px;padding:8px 10px;font-size:12px}
-.modal h4{font-size:11px;letter-spacing:1.5px;color:var(--muted);margin:22px 0 8px}
+.modal{width:100%;max-width:700px;max-height:91dvh;overflow:auto;background:linear-gradient(155deg,#20251f,#171a17);border:1px solid #4a4b3d;border-radius:23px 23px 0 0;padding:26px 26px calc(28px + env(safe-area-inset-bottom));box-shadow:0 24px 80px #0008}
+.modal-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+.modal h2{font-family:Georgia,"Times New Roman",serif;font-size:32px;font-weight:400;margin:8px 0 15px;color:var(--gold-bright)}
+.close{width:40px;height:40px;flex-shrink:0;border:1px solid var(--line);border-radius:50%;background:var(--panel);color:white;font-size:22px;cursor:pointer}
+.close:hover{background:#343a32;border-color:#77704e}
+.pill{display:inline-block;background:#302a1e;color:var(--gold-bright);border:1px solid #5b4e31;border-radius:8px;padding:8px 11px;font-size:12px}
+.modal h4{font-size:10px;letter-spacing:1.6px;color:var(--muted);margin:25px 0 9px}
 .ingredients{list-style:none;padding:0;margin:0}
-.ingredients li{display:flex;justify-content:space-between;gap:15px;border-bottom:1px solid var(--line);padding:12px 0;font-size:15px}
-.ingredients li span:last-child{color:var(--gold);text-align:right}
-.note{background:#242624;border-radius:10px;padding:13px;margin-top:15px;color:var(--muted);font-size:13px;line-height:1.5;white-space:pre-line}
+.ingredients li{display:flex;justify-content:space-between;gap:15px;border-bottom:1px solid var(--line);padding:13px 2px;font-size:14px}
+.ingredients li span:last-child{color:var(--gold-bright);text-align:right}
+.note{background:#242a24;border:1px solid #323b32;border-radius:10px;padding:14px;margin-top:17px;color:var(--muted);font-size:13px;line-height:1.65;white-space:pre-line}
 .note[hidden]{display:none}
-.form-grid{display:grid;grid-template-columns:1fr;gap:12px}
-.field{display:flex;flex-direction:column;gap:6px}
-.field label{font-size:12px;color:var(--muted)}
-.field input,.field select,.field textarea{width:100%;border:1px solid var(--line);background:#111310;color:var(--text);padding:12px;border-radius:10px;font:inherit}
-.field textarea{min-height:110px;resize:vertical}
-.form-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
-.btn.primary{background:var(--gold);color:#17150f}
-.btn.danger{border-color:var(--red);color:#e4a098}
-.admin-panel{display:none;margin:18px 0;padding:18px;border:1px solid var(--line);border-radius:16px;background:#191b1a}
+.form-grid{display:grid;grid-template-columns:1fr;gap:15px}
+.field{display:flex;flex-direction:column;gap:7px}
+.field label{font-size:11px;font-weight:650;letter-spacing:.25px;color:#c1c6bd}
+.field input,.field select,.field textarea{width:100%;border:1px solid var(--line);background:#121612;color:var(--text);padding:12px 13px;border-radius:9px;font:inherit;font-size:14px}
+.field input::placeholder,.field textarea::placeholder{color:#777e75}
+.field textarea{min-height:110px;resize:vertical;line-height:1.5}
+.form-actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:16px}
+.btn.primary{background:var(--gold);border-color:var(--gold);color:#17150f}
+.btn.primary:hover{background:var(--gold-bright);border-color:var(--gold-bright)}
+.btn.danger{border-color:#75453f;color:#e4a098;background:#2b1d1b}
+.btn.danger:hover{border-color:var(--red);background:#3a2320}
+.btn:disabled{opacity:.55;cursor:wait}
+.admin-panel{display:none;margin:22px 0 26px;padding:24px;border:1px solid #394139;border-radius:16px;background:linear-gradient(145deg,#1d221e,#171b18);box-shadow:0 12px 36px #0002}
 .admin-panel.show{display:block}
-.admin-panel h2{font-family:Georgia,serif;font-weight:400;color:var(--gold);margin-top:0}
-.small{font-size:12px;color:var(--muted);line-height:1.5}
-.admin-row{border-top:1px solid var(--line);padding:12px 0;display:flex;justify-content:space-between;align-items:center;gap:12px}
-.admin-row strong{font-size:14px}
+.admin-panel h2{font-family:Georgia,"Times New Roman",serif;font-size:22px;font-weight:400;color:var(--gold-bright);margin:0 0 9px}
+.small{font-size:13px;color:var(--muted);line-height:1.65}
+.admin-panel hr{border:0;border-top:1px solid var(--line)!important}
+.admin-row{border-top:1px solid var(--line);padding:14px 0;display:flex;justify-content:space-between;align-items:center;gap:14px}
+.admin-row strong{font-size:13px;font-weight:600;line-height:1.5}
 .admin-row button{flex-shrink:0}
-.footer{text-align:center;color:#72766f;font-size:11px;margin-top:26px;line-height:1.5}
-.status{margin:10px 0;color:var(--muted);font-size:12px;line-height:1.5}
+.footer{text-align:center;color:#7f877e;font-size:11px;margin-top:38px;line-height:1.7}
+.status{margin:12px 0 0;color:var(--muted);font-size:12px;line-height:1.6}
 .status.error{color:#e4a098}
-.status.ok{color:#b9d8a9}
+.status.ok{color:var(--green)}
 @media(min-width:620px){
-.app{padding-top:34px}
-.list{grid-template-columns:repeat(3,minmax(0,1fr))}
+.app{padding-top:42px}
+.list{grid-template-columns:repeat(3,minmax(0,1fr));gap:15px}
 .overlay{align-items:center;padding:20px}
 .modal{border-radius:22px;max-height:88vh}
 .form-grid{grid-template-columns:1fr 1fr}
 .span2{grid-column:1/-1}
+}
+@media(min-width:900px){
+.list{grid-template-columns:repeat(4,minmax(0,1fr))}
+}
+@media(max-width:480px){
+.app{padding-left:16px;padding-right:16px}
+.top{align-items:flex-start;gap:10px}
+h1{font-size:32px}
+.top .sub{max-width:275px;font-size:12px}
+.admin-btn{padding:9px 11px;font-size:12px}
+.admin-panel{padding:19px 16px}
+.admin-row{align-items:flex-start;flex-direction:column}
+.admin-row .form-actions{width:100%}
+.admin-row button{flex:1}
+.drink{min-height:140px;padding:16px}
+.drink h3{font-size:18px}
+.modal{padding:22px 18px calc(24px + env(safe-area-inset-bottom))}
+}
+@media(prefers-reduced-motion:reduce){
+*,*::before,*::after{scroll-behavior:auto!important;transition:none!important}
 }
 </style>
 </head>
@@ -84,10 +137,24 @@ h1{font-size:29px;margin:8px 0}
 <h1>Cocktail Finder 🍸</h1>
 <div class="sub">Ricettario condiviso del bar: accedi per consultare le ricette.</div>
 </div>
-<button class="admin-btn" id="adminOpen">⚙ Account</button>
+<div class="admin-menu">
+<button class="admin-btn" id="adminOpen" type="button" aria-haspopup="true" aria-expanded="false" aria-controls="adminDropdown">
+<span>⚙ Gestionale</span><span class="menu-chevron" aria-hidden="true">▾</span>
+</button>
+<nav class="dropdown" id="adminDropdown" aria-label="Menu gestionale" hidden>
+<button type="button" data-admin-target="editCocktailsSection" id="menuEditCocktails" hidden>✎ Modifiche cocktail</button>
+<button type="button" data-admin-target="ownerArea" id="menuManageStaff" hidden>♙ Gestione staff</button>
+<button type="button" data-admin-target="addCocktailSection" id="menuAddCocktail" hidden>＋ Aggiunta cocktail</button>
+<div class="dropdown-divider" id="recipeDivider" hidden></div>
+<button type="button" data-admin-action="recipes" id="menuRecipes" hidden>☷ Ricettario</button>
+<div class="dropdown-divider" id="accountDivider" hidden></div>
+<button type="button" data-admin-target="accountSection" id="menuAccount">♙ Account</button>
+</nav>
+</div>
 </header>
 
 <section class="admin-panel show" id="adminPanel">
+<div class="admin-view" id="accountSection">
 <div id="loginArea">
 <h2>Accedi al ricettario</h2>
 <p class="small">Usa il tuo account personale. Se non ne hai uno, puoi registrarti qui sotto.</p>
@@ -118,10 +185,11 @@ h1{font-size:29px;margin:8px 0}
 <button class="btn" type="button" id="logoutAccount">Esci dall'account</button>
 </div>
 </div>
+</div>
 
 <div id="manageArea" hidden>
-<hr style="border:0;border-top:1px solid var(--line);margin:22px 0">
-<h2>Gestione ricettario · Amministratore</h2>
+<section class="admin-view" id="addCocktailSection" hidden>
+<h2 id="recipeSectionTitle">Aggiunta cocktail</h2>
 <p class="small">Le modifiche vengono salvate nel database condiviso e sono visibili agli altri utenti collegati.</p>
 <form id="recipeForm">
 <div class="form-grid">
@@ -159,13 +227,24 @@ h1{font-size:29px;margin:8px 0}
 <button class="btn primary" type="submit" id="saveRecipe">＋ Salva cocktail</button>
 <button class="btn" type="button" id="cancelEdit">Annulla modifica</button>
 </div>
+<div id="unsavedWarning" class="status" role="alert" hidden>Hai modifiche non salvate.</div>
 <div id="saveMessage" class="status" role="status"></div>
 </form>
+</section>
 
-<h2 style="margin-top:28px">Gestisci tutti i cocktail</h2>
+<section class="admin-view" id="editCocktailsSection" hidden>
+<h2>Modifiche cocktail</h2>
+<p class="small">Seleziona un cocktail per modificarlo oppure eliminalo dal ricettario condiviso.</p>
+<div class="admin-tools">
+<input class="admin-search" id="adminSearch" type="search" placeholder="Cerca cocktail, categoria o ingrediente…" autocomplete="off" aria-label="Cerca tra i cocktail da modificare">
+<nav class="admin-category-filters" id="adminFilters" aria-label="Filtra cocktail per categoria"></nav>
+</div>
+<div class="admin-count" id="adminCount" aria-live="polite"></div>
 <div id="customList"></div>
+</section>
+</div>
 
-<div id="ownerArea" hidden>
+<section class="admin-view" id="ownerArea" hidden>
 <hr style="border:0;border-top:1px solid var(--line);margin:22px 0">
 <h2>Gestione utenti · Proprietario</h2>
 <p class="small">Assegna o revoca il ruolo di amministratore inserendo l’email dell’account già registrato.</p>
@@ -188,7 +267,7 @@ h1{font-size:29px;margin:8px 0}
 </div>
 <div id="roleStatus" class="status" role="status"></div>
 </form>
-</div>
+</section>
 </section>
 
 <div id="recipeArea" hidden>
@@ -273,8 +352,9 @@ const BASE_RECIPES = [
 const $=id=>document.getElementById(id);
 const categories=['Tutti','Aperitivi','Signature Drink','Pre Batch','Grandi Classici','★ Preferiti'];
 const FAV_KEY='gigis-bar-favorites-v3';
+const recipeFormFieldIds=['recipeName','recipeCategory','recipeMethod','recipeGarnish','recipeIngredients','recipePreparation'];
 
-let recipes=[],favorites=[],activeCategory='Tutti',searchTerm='',currentUser=null,isAdmin=false,isOwner=false,editingId=null,channel=null;
+let recipes=[],favorites=[],activeCategory='Tutti',searchTerm='',adminCategory='Tutti',adminSearchTerm='',recipeFormBaseline='',currentUser=null,isAdmin=false,isOwner=false,editingId=null,channel=null;
 
 try{
 favorites=JSON.parse(localStorage.getItem(FAV_KEY)||'[]');
@@ -328,14 +408,57 @@ custom:r.custom??true
 };
 }
 
+function recipeFormSnapshot(){
+return JSON.stringify(recipeFormFieldIds.map(id=>$(id).value));
+}
+
+function recipeFormHasUnsavedChanges(){
+return recipeFormSnapshot()!==recipeFormBaseline;
+}
+
+function updateUnsavedWarning(){
+$('unsavedWarning').hidden=!recipeFormHasUnsavedChanges();
+}
+
+function confirmDiscardUnsavedChanges(){
+if(!recipeFormHasUnsavedChanges())return true;
+
+if(!confirm('Hai modifiche non salvate. Vuoi uscire senza salvarle?'))return false;
+
+clearEditor();
+return true;
+}
+
+recipeFormBaseline=recipeFormSnapshot();
+
+recipeFormFieldIds.forEach(id=>{
+$(id).addEventListener('input',updateUnsavedWarning);
+$(id).addEventListener('change',updateUnsavedWarning);
+});
+
+window.addEventListener('beforeunload',event=>{
+if(!recipeFormHasUnsavedChanges())return;
+event.preventDefault();
+event.returnValue='';
+});
+
 function showAuth(){
 const logged=!!currentUser;
+const canManage=logged&&(isAdmin||isOwner);
 
 $('loginArea').hidden=logged;
 $('memberArea').hidden=!logged;
-$('manageArea').hidden=!(logged&&(isAdmin||isOwner));
-$('ownerArea').hidden=!(logged&&isOwner);
+$('manageArea').hidden=!canManage;
 $('recipeArea').hidden=!logged;
+$('menuEditCocktails').hidden=!canManage;
+$('menuAddCocktail').hidden=!canManage;
+$('menuManageStaff').hidden=!(logged&&isOwner);
+$('accountDivider').hidden=!canManage;
+$('menuRecipes').hidden=!logged;
+$('recipeDivider').hidden=!logged;
+
+showAdminSection('accountSection');
+closeAdminMenu();
 
 if(logged){
 $('memberEmail').textContent=currentUser.email||'Account';
@@ -358,9 +481,68 @@ renderList();
 }
 }
 
-$('adminOpen').onclick=()=>{
-$('adminPanel').classList.toggle('show');
+function showAdminSection(sectionId){
+const canManage=!!currentUser&&(isAdmin||isOwner);
+const availableSections={
+accountSection:true,
+addCocktailSection:canManage,
+editCocktailsSection:canManage,
+ownerArea:!!currentUser&&isOwner
 };
+
+Object.keys(availableSections).forEach(id=>{
+$(id).hidden=id!==sectionId||!availableSections[id];
+});
+}
+
+function closeAdminMenu(){
+$('adminDropdown').hidden=true;
+$('adminOpen').setAttribute('aria-expanded','false');
+}
+
+$('adminOpen').onclick=()=>{
+const isOpen=!$('adminDropdown').hidden;
+$('adminDropdown').hidden=isOpen;
+$('adminOpen').setAttribute('aria-expanded',String(!isOpen));
+};
+
+$('adminDropdown').addEventListener('click',event=>{
+const action=event.target.closest('[data-admin-action]');
+if(action?.dataset.adminAction==='recipes'){
+if(!confirmDiscardUnsavedChanges()){
+closeAdminMenu();
+return;
+}
+
+closeAdminMenu();
+$('adminPanel').classList.remove('show');
+$('recipeArea').hidden=!currentUser;
+if(currentUser)window.scrollTo({top:0,behavior:'smooth'});
+return;
+}
+
+const item=event.target.closest('[data-admin-target]');
+if(!item)return;
+
+if(!confirmDiscardUnsavedChanges()){
+closeAdminMenu();
+return;
+}
+
+showAdminSection(item.dataset.adminTarget);
+closeAdminMenu();
+$('recipeArea').hidden=true;
+$('adminPanel').classList.add('show');
+$('adminPanel').scrollIntoView({behavior:'smooth',block:'start'});
+});
+
+document.addEventListener('click',event=>{
+if(!event.target.closest('.admin-menu'))closeAdminMenu();
+});
+
+document.addEventListener('keydown',event=>{
+if(event.key==='Escape')closeAdminMenu();
+});
 
 $('loginForm').addEventListener('submit',async e=>{
 e.preventDefault();
@@ -725,6 +907,11 @@ searchTerm=$('search').value;
 renderList();
 });
 
+$('adminSearch').addEventListener('input',()=>{
+adminSearchTerm=$('adminSearch').value;
+renderAdminList();
+});
+
 $('close').onclick=closeRecipe;
 
 $('overlay').addEventListener('click',e=>{
@@ -751,11 +938,16 @@ return parts.length>1
 function clearEditor(){
 editingId=null;
 $('recipeForm').reset();
+$('recipeSectionTitle').textContent='Aggiunta cocktail';
 $('saveRecipe').textContent='＋ Salva cocktail';
+recipeFormBaseline=recipeFormSnapshot();
+$('unsavedWarning').hidden=true;
 status('saveMessage','');
 }
 
-$('cancelEdit').onclick=clearEditor;
+$('cancelEdit').onclick=()=>{
+if(confirmDiscardUnsavedChanges())clearEditor();
+};
 
 $('recipeForm').addEventListener('submit',async e=>{
 e.preventDefault();
@@ -817,12 +1009,48 @@ if(!box)return;
 
 box.replaceChildren();
 
+const filterBox=$('adminFilters');
+filterBox.replaceChildren();
+
+categories.filter(category=>category!=='★ Preferiti').forEach(category=>{
+const button=el('button','chip'+(adminCategory===category?' active':''),category);
+button.type='button';
+button.setAttribute('aria-pressed',String(adminCategory===category));
+button.onclick=()=>{
+adminCategory=category;
+renderAdminList();
+};
+filterBox.appendChild(button);
+});
+
 if(!recipes.length){
+$('adminCount').textContent='0 cocktail';
 box.appendChild(el('p','small','Nessuna ricetta presente.'));
 return;
 }
 
-recipes.forEach(r=>{
+const query=normalize(adminSearchTerm);
+const found=recipes.filter(r=>{
+const matchesCategory=adminCategory==='Tutti'||r.category===adminCategory;
+const searchable=normalize([
+r.name,
+r.category,
+r.method,
+r.note,
+r.preparation,
+...r.ingredients.flat()
+].join(' '));
+return matchesCategory&&searchable.includes(query);
+});
+
+$('adminCount').textContent=found.length+' di '+recipes.length+' cocktail';
+
+if(!found.length){
+box.appendChild(el('div','empty','Nessun cocktail trovato. Prova un’altra ricerca o categoria.'));
+return;
+}
+
+found.forEach(r=>{
 const row=el('div','admin-row');
 const label=el('strong','',r.name+' · '+r.category);
 const actions=el('div','form-actions');
@@ -833,7 +1061,10 @@ const edit=el('button','btn','Modifica');
 edit.type='button';
 
 edit.onclick=()=>{
+if(!confirmDiscardUnsavedChanges())return;
+
 editingId=r.id;
+$('recipeSectionTitle').textContent='Modifica cocktail';
 
 $('recipeName').value=r.name;
 $('recipeCategory').value=r.category;
@@ -846,8 +1077,13 @@ $('recipeIngredients').value=r.ingredients
 
 $('recipePreparation').value=r.preparation;
 $('saveRecipe').textContent='Salva modifiche';
+recipeFormBaseline=recipeFormSnapshot();
+$('unsavedWarning').hidden=true;
 
 status('saveMessage','Stai modificando: '+r.name);
+
+showAdminSection('addCocktailSection');
+$('adminPanel').classList.add('show');
 
 $('recipeName').focus();
 
@@ -861,7 +1097,8 @@ const del=el('button','btn danger','Elimina');
 del.type='button';
 
 del.onclick=async()=>{
-if(!confirm('Eliminare "'+r.name+'"? Questa azione è condivisa con tutti gli utenti.'))return;
+if(!confirmDiscardUnsavedChanges())return;
+if(!confirm('Eliminare definitivamente "'+r.name+'" dal ricettario condiviso?'))return;
 
 const {error}=await db.from('recipes').delete().eq('id',r.id);
 
