@@ -135,6 +135,7 @@ h1{font-size:29px;margin:8px 0}
 <option>Aperitivi</option>
 <option>Signature Drink</option>
 <option>Grandi Classici</option>
+<option>Pre Batch</option>
 </select>
 </div>
 <div class="field">
@@ -270,7 +271,7 @@ const BASE_RECIPES = [
 ];
 
 const $=id=>document.getElementById(id);
-const categories=['Tutti','Aperitivi','Signature Drink','Grandi Classici','★ Preferiti'];
+const categories=['Tutti','Aperitivi','Signature Drink','Pre Batch','Grandi Classici','★ Preferiti'];
 const FAV_KEY='gigis-bar-favorites-v3';
 
 let recipes=[],favorites=[],activeCategory='Tutti',searchTerm='',currentUser=null,isAdmin=false,isOwner=false,editingId=null,channel=null;
