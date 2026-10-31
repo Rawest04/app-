@@ -402,6 +402,49 @@ const n=$(id);
 if(n){n.textContent=msg;n.className='status '+type;}
 }
 
+function authErrorMessage(error){
+const message=String(error?.message||'');
+const normalized=message.toLowerCase();
+const code=String(error?.code||'').toLowerCase();
+
+if(code.includes('rate_limit')||normalized.includes('rate limit')||normalized.includes('too many requests')){
+return 'Hai fatto troppe richieste. Attendi qualche minuto prima di riprovare.';
+}
+if(code==='invalid_credentials'||normalized.includes('invalid login credentials')){
+return 'Email o password non corretti.';
+}
+if(normalized.includes('email not confirmed')){
+return 'Devi prima confermare il tuo indirizzo email dal link che ti abbiamo inviato.';
+}
+if(normalized.includes('user already registered')){
+return 'Questa email è già registrata. Prova ad accedere o a recuperare la password.';
+}
+if(normalized.includes('password should be at least')||normalized.includes('password is too short')){
+return 'La password è troppo corta: scegline una più lunga.';
+}
+if(normalized.includes('network')||normalized.includes('fetch')){
+return 'Connessione non riuscita. Controlla la rete e riprova.';
+}
+
+return message||'Operazione non riuscita. Riprova.';
+}
+
+async function runAuthAction(button,statusId,busyText,action){
+const originalText=button.textContent;
+button.disabled=true;
+button.textContent=busyText;
+
+try{
+await action();
+}catch(error){
+console.error(error);
+status(statusId,authErrorMessage(error),'error');
+}finally{
+button.disabled=false;
+button.textContent=originalText;
+}
+}
+
 function saveFavorites(){
 localStorage.setItem(FAV_KEY,JSON.stringify(favorites));
 }
@@ -573,15 +616,17 @@ if(event.key==='Escape')closeAdminMenu();
 
 $('loginForm').addEventListener('submit',async e=>{
 e.preventDefault();
+const button=$('loginForm').querySelector('button[type="submit"]');
+await runAuthAction(button,'loginError','Accesso…',async()=>{
 status('loginError','Accesso in corso…');
-
 const {error}=await db.auth.signInWithPassword({
 email:$('email').value.trim(),
 password:$('password').value
 });
 
-if(error)status('loginError',error.message,'error');
-else status('loginError','');
+if(error)throw error;
+status('loginError','');
+});
 });
 
 $('register').onclick=async()=>{
@@ -598,6 +643,7 @@ status('loginError','La password deve avere almeno 6 caratteri.','error');
 return;
 }
 
+await runAuthAction($('register'),'loginError','Creazione…',async()=>{
 status('loginError','Creazione account in corso…');
 
 const { data, error } = await db.auth.signUp({
@@ -608,10 +654,7 @@ options: {
 }
 });
 
-if (error) {
-status('loginError', error.message, 'error');
-return;
-}
+if(error)throw error;
 
 if (data.session) {
 status('loginError', 'Account creato! Accesso effettuato.', 'ok');
@@ -622,6 +665,7 @@ status(
   'ok'
 );
 }
+});
 };
 
 $('forgotPassword').onclick=async()=>{
@@ -633,18 +677,16 @@ $('email').focus();
 return;
 }
 
+await runAuthAction($('forgotPassword'),'loginError','Invio…',async()=>{
 status('loginError','Invio del link di recupero in corso…');
-
 const {error}=await db.auth.resetPasswordForEmail(email,{
 redirectTo:window.location.origin+window.location.pathname
 });
 
-if(error){
-status('loginError',error.message,'error');
-return;
-}
+if(error)throw error;
 
 status('loginError','Se l’indirizzo è registrato, riceverai un link per reimpostare la password.','ok');
+});
 };
 
 $('recoveryForm').addEventListener('submit',async event=>{
@@ -656,17 +698,16 @@ status('recoveryStatus','Le password non coincidono.','error');
 return;
 }
 
+const button=$('recoveryForm').querySelector('button[type="submit"]');
+await runAuthAction(button,'recoveryStatus','Salvataggio…',async()=>{
 status('recoveryStatus','Aggiornamento della password in corso…');
-
 const {data,error}=await db.auth.updateUser({password});
-if(error){
-status('recoveryStatus',error.message,'error');
-return;
-}
+if(error)throw error;
 
 isPasswordRecovery=false;
 await onSession({user:data.user},'PASSWORD_UPDATED');
 status('memberStatus','Password aggiornata con successo.','ok');
+});
 });
 
 async function logout(){
@@ -1204,3 +1245,4 @@ box.appendChild(row);
 </script>
 </body>
 </html>
+
