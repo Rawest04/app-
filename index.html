@@ -172,6 +172,7 @@ h1{font-size:32px}
 <div class="form-actions">
 <button class="btn primary" type="submit">Accedi</button>
 <button class="btn" type="button" id="register">Crea account</button>
+<button class="btn" type="button" id="forgotPassword">Password dimenticata?</button>
 </div>
 <div id="loginError" class="status" role="alert"></div>
 </form>
@@ -181,9 +182,31 @@ h1{font-size:32px}
 <h2>Account collegato</h2>
 <p class="small">Accesso effettuato con <strong id="memberEmail"></strong></p>
 <p id="roleMessage" class="small"></p>
+<div id="memberStatus" class="status" role="status"></div>
 <div class="form-actions">
 <button class="btn" type="button" id="logoutAccount">Esci dall'account</button>
 </div>
+</div>
+
+<div id="recoveryArea" hidden>
+<h2>Imposta una nuova password</h2>
+<p class="small">Scegli una nuova password per il tuo account.</p>
+<form id="recoveryForm">
+<div class="form-grid">
+<div class="field">
+<label for="newPassword">Nuova password</label>
+<input id="newPassword" type="password" required minlength="6" autocomplete="new-password" placeholder="Almeno 6 caratteri">
+</div>
+<div class="field">
+<label for="confirmPassword">Conferma nuova password</label>
+<input id="confirmPassword" type="password" required minlength="6" autocomplete="new-password" placeholder="Ripeti la nuova password">
+</div>
+</div>
+<div class="form-actions">
+<button class="btn primary" type="submit">Salva nuova password</button>
+</div>
+<div id="recoveryStatus" class="status" role="status" aria-live="polite"></div>
+</form>
 </div>
 </div>
 
@@ -354,7 +377,7 @@ const categories=['Tutti','Aperitivi','Signature Drink','Pre Batch','Grandi Clas
 const FAV_KEY='gigis-bar-favorites-v3';
 const recipeFormFieldIds=['recipeName','recipeCategory','recipeMethod','recipeGarnish','recipeIngredients','recipePreparation'];
 
-let recipes=[],favorites=[],activeCategory='Tutti',searchTerm='',adminCategory='Tutti',adminSearchTerm='',recipeFormBaseline='',currentUser=null,isAdmin=false,isOwner=false,editingId=null,channel=null;
+let recipes=[],favorites=[],activeCategory='Tutti',searchTerm='',adminCategory='Tutti',adminSearchTerm='',recipeFormBaseline='',currentUser=null,isAdmin=false,isOwner=false,isPasswordRecovery=false,editingId=null,channel=null;
 
 try{
 favorites=JSON.parse(localStorage.getItem(FAV_KEY)||'[]');
@@ -443,11 +466,13 @@ event.returnValue='';
 });
 
 function showAuth(){
-const logged=!!currentUser;
+const recovering=isPasswordRecovery&&!!currentUser;
+const logged=!!currentUser&&!recovering;
 const canManage=logged&&(isAdmin||isOwner);
 
-$('loginArea').hidden=logged;
+$('loginArea').hidden=logged||recovering;
 $('memberArea').hidden=!logged;
+$('recoveryArea').hidden=!recovering;
 $('manageArea').hidden=!canManage;
 $('recipeArea').hidden=!logged;
 $('menuEditCocktails').hidden=!canManage;
@@ -472,8 +497,10 @@ $('roleMessage').textContent=isOwner
 
 if(!logged){
 $('adminPanel').classList.add('show');
+if(!recovering){
 $('list').replaceChildren(el('div','empty','Accedi dall’area Account per aprire il ricettario.'));
 $('count').textContent='';
+}
 }else{
 $('adminPanel').classList.remove('show');
 renderFilters();
@@ -597,12 +624,58 @@ status(
 }
 };
 
+$('forgotPassword').onclick=async()=>{
+const email=$('email').value.trim();
+
+if(!email){
+status('loginError','Inserisci la tua email per ricevere il link di recupero.','error');
+$('email').focus();
+return;
+}
+
+status('loginError','Invio del link di recupero in corso…');
+
+const {error}=await db.auth.resetPasswordForEmail(email,{
+redirectTo:window.location.origin+window.location.pathname
+});
+
+if(error){
+status('loginError',error.message,'error');
+return;
+}
+
+status('loginError','Se l’indirizzo è registrato, riceverai un link per reimpostare la password.','ok');
+};
+
+$('recoveryForm').addEventListener('submit',async event=>{
+event.preventDefault();
+
+const password=$('newPassword').value;
+if(password!==$('confirmPassword').value){
+status('recoveryStatus','Le password non coincidono.','error');
+return;
+}
+
+status('recoveryStatus','Aggiornamento della password in corso…');
+
+const {data,error}=await db.auth.updateUser({password});
+if(error){
+status('recoveryStatus',error.message,'error');
+return;
+}
+
+isPasswordRecovery=false;
+await onSession({user:data.user},'PASSWORD_UPDATED');
+status('memberStatus','Password aggiornata con successo.','ok');
+});
+
 async function logout(){
 await db.auth.signOut();
 
 currentUser=null;
 isAdmin=false;
 isOwner=false;
+isPasswordRecovery=false;
 recipes=[];
 
 if(channel){
@@ -674,12 +747,20 @@ console.error(e);
 .subscribe();
 }
 
-async function onSession(session){
+async function onSession(session,event){
+if(event==='PASSWORD_RECOVERY')isPasswordRecovery=true;
+if(event==='SIGNED_OUT')isPasswordRecovery=false;
+
 currentUser=session?.user||null;
 isAdmin=false;
 
 isOwner=!!currentUser&&
 String(currentUser.email||'').toLowerCase()===OWNER_EMAIL.toLowerCase();
+
+if(isPasswordRecovery){
+showAuth();
+return;
+}
 
 if(!currentUser){
 recipes=[];
@@ -761,8 +842,8 @@ button.textContent='Aggiorna ruolo';
 }
 });
 
-db.auth.onAuthStateChange((_event,session)=>{
-setTimeout(()=>onSession(session),0);
+db.auth.onAuthStateChange((event,session)=>{
+setTimeout(()=>onSession(session,event),0);
 });
 
 function renderFilters(){
