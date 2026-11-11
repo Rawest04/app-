@@ -3,39 +3,39 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#111211">
+<meta name="theme-color" content="#121713">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Gigi's Bar">
 <title>Gigi's Bar · Cocktail Finder</title>
 <style>
-:root{color-scheme:dark;--bg:#111311;--panel:#1b201d;--panel-soft:#202621;--gold:#d9b66f;--gold-bright:#ebcb86;--text:#f5f3ed;--muted:#a7afa7;--line:#343c35;--red:#a44d43;--green:#a9c99f}
+:root{color-scheme:dark;--bg:#121713;--panel:#1b221d;--panel-soft:#222b24;--gold:#dfbb72;--gold-bright:#f0d18e;--text:#f7f4ec;--muted:#bac2b9;--line:#3a463d;--red:#b9584b;--green:#afd0a4;--focus:#f0d18e}
 *{box-sizing:border-box}
-body{margin:0;background:radial-gradient(ellipse at 50% -18%,#343123 0,transparent 48%),linear-gradient(180deg,#151915 0,#101210 54%);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;min-height:100vh}
+body{margin:0;background:radial-gradient(ellipse at 50% -18%,#413823 0,transparent 48%),linear-gradient(180deg,#171e18 0,#111612 54%);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;min-height:100vh;line-height:1.5}
 button,input,textarea,select{font:inherit}
-button{transition:background-color .18s ease,border-color .18s ease,color .18s ease,transform .18s ease}
-button:focus-visible,[tabindex="0"]:focus-visible{outline:2px solid var(--gold-bright);outline-offset:3px}
+button{transition:background-color .18s ease,border-color .18s ease,color .18s ease,transform .18s ease,box-shadow .18s ease}
+button:focus-visible,[tabindex="0"]:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible,summary:focus-visible{outline:2px solid var(--focus);outline-offset:3px}
 .app{max-width:1080px;margin:auto;padding:calc(30px + env(safe-area-inset-top)) 24px calc(48px + env(safe-area-inset-bottom))}
 .brand{font-size:10px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--gold)}
 h1{font-family:Georgia,"Times New Roman",serif;font-size:clamp(32px,5vw,46px);font-weight:400;letter-spacing:-1.2px;margin:10px 0 6px}
 .sub{font-size:14px;color:var(--muted);line-height:1.6}
-.top{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:0 0 26px;border-bottom:1px solid #ffffff12}
-.admin-btn,.btn{min-height:42px;border:1px solid #746744;border-radius:10px;padding:10px 15px;background:#211f19;color:var(--gold-bright);font-size:13px;font-weight:650;cursor:pointer}
-.admin-btn:hover,.btn:hover{border-color:var(--gold);background:#302a1d}
+.top{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:0 0 26px;border-bottom:1px solid #ffffff18}
+.admin-btn,.btn{min-height:46px;border:1px solid #7d704f;border-radius:11px;padding:10px 16px;background:#26251d;color:var(--gold-bright);font-size:13px;font-weight:650;cursor:pointer;box-shadow:0 3px 12px #00000014}
+.admin-btn:hover,.btn:hover{border-color:var(--gold);background:#353022;box-shadow:0 5px 16px #0003}
 .admin-menu{position:relative;flex:0 0 auto}
 .admin-btn{white-space:nowrap;display:flex;align-items:center;gap:10px}
 .menu-chevron{font-size:10px;transition:transform .18s ease}
 .admin-btn[aria-expanded="true"] .menu-chevron{transform:rotate(180deg)}
-.dropdown{position:absolute;top:calc(100% + 9px);right:0;z-index:5;width:235px;padding:6px;border:1px solid #45483c;border-radius:12px;background:#1c211d;box-shadow:0 14px 36px #0008}
+.dropdown{position:absolute;top:calc(100% + 9px);right:0;z-index:5;width:235px;padding:6px;border:1px solid #4b5548;border-radius:13px;background:#202820;box-shadow:0 14px 36px #0009}
 .dropdown[hidden]{display:none}
 .dropdown button{display:flex;width:100%;align-items:center;gap:10px;border:0;border-radius:8px;padding:11px 12px;background:transparent;color:var(--text);text-align:left;font-size:13px;cursor:pointer}
 .dropdown button:hover,.dropdown button:focus-visible{background:#2b3028;color:var(--gold-bright)}
 .dropdown button[hidden]{display:none}
 .dropdown-divider{height:1px;margin:5px 7px;background:var(--line)}
 .admin-view{scroll-margin-top:22px}
-.search-wrap{position:sticky;top:0;z-index:2;padding:18px 0 13px;background:linear-gradient(#111411 78%,transparent)}
-.search{width:100%;padding:16px 18px 16px 46px;border:1px solid var(--line);border-radius:13px;background:var(--panel-soft);color:var(--text);font-size:15px;outline:none;box-shadow:0 8px 24px #0002}
+.search-wrap{position:sticky;top:0;z-index:2;padding:18px 0 13px;background:linear-gradient(#141a15f5 78%,#141a1500);backdrop-filter:blur(8px)}
+.search{width:100%;min-height:54px;padding:15px 18px 15px 46px;border:1px solid #465247;border-radius:14px;background:#222b24;color:var(--text);font-size:16px;outline:none;box-shadow:0 8px 24px #0003}
 #recipeArea:not([hidden]) .search-wrap:before{content:"⌕";position:absolute;left:17px;top:27px;color:var(--gold);font-size:25px;line-height:1;pointer-events:none}
-.search:focus,input:focus,textarea:focus,select:focus{border-color:var(--gold);outline:none;box-shadow:0 0 0 3px #d9b66f20}
+.search:focus,input:focus,textarea:focus,select:focus{border-color:var(--gold);outline:2px solid var(--focus);outline-offset:2px;box-shadow:0 0 0 3px #dfbb7230}
 .filters{display:flex;gap:9px;overflow-x:auto;padding:2px 0 20px;scrollbar-width:none}
 .filters::-webkit-scrollbar{display:none}
 .admin-tools{margin:18px 0 12px}
@@ -44,20 +44,20 @@ h1{font-family:Georgia,"Times New Roman",serif;font-size:clamp(32px,5vw,46px);fo
 .admin-category-filters{display:flex;gap:8px;overflow-x:auto;padding:12px 0 4px;scrollbar-width:none}
 .admin-category-filters::-webkit-scrollbar{display:none}
 .admin-count{margin:12px 0;font-size:12px;color:var(--muted)}
-.chip{flex:0 0 auto;border:1px solid var(--line);border-radius:25px;padding:9px 14px;background:#1a1e1b;color:var(--muted);font-size:12px;font-weight:600;cursor:pointer}
+.chip{flex:0 0 auto;min-height:42px;border:1px solid var(--line);border-radius:25px;padding:9px 15px;background:#1c241e;color:var(--muted);font-size:13px;font-weight:600;cursor:pointer}
 .chip:hover{border-color:#77704e;color:var(--text)}
-.chip.active{background:var(--gold);color:#1b1a14;border-color:var(--gold);font-weight:750}
+.chip.active{background:var(--gold);color:#211d13;border-color:var(--gold);font-weight:750;box-shadow:0 3px 12px #dfbb7226}
 .heading{display:flex;justify-content:space-between;align-items:center;margin:4px 0 15px}
 .heading h2{font-family:Georgia,"Times New Roman",serif;font-size:23px;font-weight:400;letter-spacing:-.3px;margin:0}
 .count{font-size:12px;color:var(--muted);padding:6px 10px;border:1px solid var(--line);border-radius:20px}
 .list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}
-.drink{position:relative;min-height:150px;text-align:left;padding:19px;border:1px solid #353d36;border-radius:14px;background:linear-gradient(145deg,#222823,#191e1a);color:var(--text);cursor:pointer;overflow:hidden}
+.drink{position:relative;min-height:150px;text-align:left;padding:19px;border:1px solid #3b473d;border-radius:17px;background:linear-gradient(145deg,#252f27,#1b231d);color:var(--text);cursor:pointer;overflow:hidden;box-shadow:0 6px 18px #0003}
 .drink:before{content:"";position:absolute;inset:0 auto 0 0;width:2px;background:linear-gradient(transparent,var(--gold),transparent);opacity:.5}
-.drink:hover{transform:translateY(-2px);border-color:#77704e;background:linear-gradient(145deg,#2a3029,#1c211d);box-shadow:0 10px 25px #0003}
+.drink:hover{transform:translateY(-2px);border-color:#918054;background:linear-gradient(145deg,#30382d,#20291f);box-shadow:0 10px 25px #0005}
 .drink:active{transform:scale(.985)}
 .cat{font-size:10px;font-weight:700;color:var(--gold);letter-spacing:1.35px;text-transform:uppercase;padding-right:30px}
 .drink h3{font-family:Georgia,"Times New Roman",serif;font-size:20px;font-weight:400;line-height:1.25;margin:14px 0 9px;padding-right:5px}
-.method{font-size:11px;color:var(--muted);line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.method{font-size:12px;color:var(--muted);line-height:1.55;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .star{position:absolute;right:11px;top:9px;background:transparent;border:0;border-radius:8px;color:var(--gold);font-size:22px;line-height:1;padding:5px;cursor:pointer}
 .star:hover{background:#d9b66f18;transform:scale(1.1)}
 .empty{grid-column:1/-1;text-align:center;padding:40px 18px;border:1px dashed var(--line);border-radius:14px;color:var(--muted);line-height:1.7;background:#1a1e1b80}
@@ -77,30 +77,31 @@ h1{font-family:Georgia,"Times New Roman",serif;font-size:clamp(32px,5vw,46px);fo
 .note[hidden]{display:none}
 .form-grid{display:grid;grid-template-columns:1fr;gap:15px}
 .field{display:flex;flex-direction:column;gap:7px}
-.field label{font-size:11px;font-weight:650;letter-spacing:.25px;color:#c1c6bd}
-.field input,.field select,.field textarea{width:100%;border:1px solid var(--line);background:#121612;color:var(--text);padding:12px 13px;border-radius:9px;font:inherit;font-size:14px}
-.field input::placeholder,.field textarea::placeholder{color:#777e75}
+.field label{font-size:12px;font-weight:650;letter-spacing:.2px;color:#d0d5cc}
+.field input,.field select,.field textarea{width:100%;min-height:46px;border:1px solid var(--line);background:#151c16;color:var(--text);padding:12px 13px;border-radius:10px;font:inherit;font-size:15px;transition:border-color .18s ease,box-shadow .18s ease,background-color .18s ease}
+.field input::placeholder,.field textarea::placeholder{color:#969f95}
+.field select option{background:#151c16;color:var(--text)}
 .field textarea{min-height:110px;resize:vertical;line-height:1.5}
 .form-actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:16px}
-.btn.primary{background:var(--gold);border-color:var(--gold);color:#17150f}
+.btn.primary{background:var(--gold);border-color:var(--gold);color:#17150f;box-shadow:0 4px 14px #dfbb7220}
 .btn.primary:hover{background:var(--gold-bright);border-color:var(--gold-bright)}
 .btn.danger{border-color:#75453f;color:#e4a098;background:#2b1d1b}
 .btn.danger:hover{border-color:var(--red);background:#3a2320}
 .btn:disabled{opacity:.55;cursor:wait}
-.admin-panel{display:none;margin:22px 0 26px;padding:24px;border:1px solid #394139;border-radius:16px;background:linear-gradient(145deg,#1d221e,#171b18);box-shadow:0 12px 36px #0002}
+.admin-panel{display:none;margin:22px 0 26px;padding:26px;border:1px solid #3b473d;border-radius:18px;background:linear-gradient(145deg,#202820,#171e19);box-shadow:0 16px 42px #0004}
 .admin-panel.show{display:block}
 .admin-panel h2{font-family:Georgia,"Times New Roman",serif;font-size:22px;font-weight:400;color:var(--gold-bright);margin:0 0 9px}
-.small{font-size:13px;color:var(--muted);line-height:1.65}
+.small{font-size:14px;color:var(--muted);line-height:1.65}
 .admin-panel hr{border:0;border-top:1px solid var(--line)!important}
 .admin-row{border-top:1px solid var(--line);padding:14px 0;display:flex;justify-content:space-between;align-items:center;gap:14px}
 .admin-row strong{font-size:13px;font-weight:600;line-height:1.5}
 .admin-row button{flex-shrink:0}
-.footer{text-align:center;color:#7f877e;font-size:11px;margin-top:38px;line-height:1.7}
-.status{margin:12px 0 0;color:var(--muted);font-size:12px;line-height:1.6}
-.status.error{color:#e4a098}
+.footer{text-align:center;color:#a0aa9f;font-size:12px;margin-top:38px;line-height:1.7}
+.status{margin:12px 0 0;color:var(--muted);font-size:13px;line-height:1.6}
+.status.error{color:#f0a49a}
 .status.ok{color:var(--green)}
 .order-list,.product-management-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
-.order-row,.product-management-row{display:flex;min-width:0;flex-direction:column;gap:12px;padding:16px;border:1px solid #353d36;border-radius:12px;background:linear-gradient(145deg,#222823,#191e1a)}
+.order-row,.product-management-row{display:flex;min-width:0;flex-direction:column;gap:12px;padding:16px;border:1px solid #3b473d;border-radius:14px;background:linear-gradient(145deg,#252f27,#1b231d)}
 .order-product-head{display:flex;min-width:0;flex-direction:column;align-items:flex-start;gap:8px}
 .order-row label{font-size:14px;line-height:1.5;overflow-wrap:anywhere}
 .order-product-category-tag{display:inline-flex;max-width:100%;border:1px solid #5b4e31;border-radius:20px;padding:5px 9px;color:var(--gold-bright);font-size:10px;font-weight:700;letter-spacing:.6px;text-transform:uppercase}
@@ -117,6 +118,18 @@ h1{font-family:Georgia,"Times New Roman",serif;font-size:clamp(32px,5vw,46px);fo
 .category-create{margin:0 0 16px}
 .category-create-control{display:flex;gap:8px}
 .category-create-control .btn{flex-shrink:0}
+.category-manager{margin:0 0 20px;border:1px solid #3a463d;border-radius:13px;background:#182019}
+.category-manager summary{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 15px;color:#d9d4c6;font-size:13px;font-weight:650;cursor:pointer;list-style:none}
+.category-manager summary::-webkit-details-marker{display:none}
+.category-manager summary:after{content:"＋";color:var(--gold);font-size:17px}
+.category-manager[open] summary:after{content:"−"}
+.category-manager-content{padding:0 13px 13px}
+.category-manager-content>.small{margin:0 0 10px;font-size:12px}
+.category-management-list{display:grid;gap:8px}
+.category-management-row{display:flex;align-items:center;gap:8px;min-width:0;padding:9px;border:1px solid #3a463d;border-radius:10px;background:#1d271f}
+.category-management-row input{min-width:0;flex:1;min-height:42px;padding:9px 10px;border:1px solid var(--line);border-radius:8px;background:#151c16;color:var(--text);font-size:14px}
+.category-management-row .btn{min-height:42px;padding:8px 11px}
+.category-manager-empty{padding:12px;border:1px dashed var(--line);border-radius:9px;color:var(--muted);font-size:12px}
 .order-search{max-width:560px;margin:16px 0 8px}
 .order-category-filters{display:flex;gap:8px;overflow-x:auto;padding:8px 0 12px;scrollbar-width:none}
 .order-category-filters::-webkit-scrollbar{display:none}
@@ -140,17 +153,31 @@ h1{font-family:Georgia,"Times New Roman",serif;font-size:clamp(32px,5vw,46px);fo
 .top{align-items:flex-start;gap:10px}
 h1{font-size:32px}
 .top .sub{max-width:275px;font-size:12px}
-.admin-btn{padding:9px 11px;font-size:12px}
+.admin-btn{min-height:44px;padding:9px 11px;font-size:12px}
 .admin-panel{padding:19px 16px}
+.form-actions{gap:8px}
+.form-actions .btn{flex:1 1 auto}
+.filters,.admin-category-filters,.order-category-filters{margin-right:-16px;padding-right:16px}
 .admin-row{align-items:flex-start;flex-direction:column}
 .admin-row .form-actions{width:100%}
 .admin-row button{flex:1}
+.category-management-row{flex-wrap:wrap}
+.category-management-row input{flex-basis:100%}
+.category-management-row .btn{flex:1}
 .order-add{align-items:stretch;flex-direction:column;max-width:none}
 .order-add .btn{width:100%}
 .drink{min-height:140px;padding:16px}
 .drink h3{font-size:18px}
 .order-list,.product-management-list{grid-template-columns:1fr}
 .modal{padding:22px 18px calc(24px + env(safe-area-inset-bottom))}
+}
+@media(max-width:380px){
+.app{padding-left:13px;padding-right:13px}
+.list{grid-template-columns:1fr}
+.drink{min-height:128px}
+.admin-panel{padding:17px 13px}
+.form-actions .btn{flex-basis:100%}
+.filters,.admin-category-filters,.order-category-filters{margin-right:-13px;padding-right:13px}
 }
 @media(prefers-reduced-motion:reduce){
 *,*::before,*::after{scroll-behavior:auto!important;transition:none!important}
@@ -266,6 +293,13 @@ h1{font-size:32px}
 <button class="btn" type="button" id="addRecipeCategory">＋ Crea</button>
 </div>
 </div>
+<details class="category-manager span2">
+<summary>Gestisci categorie cocktail</summary>
+<div class="category-manager-content">
+<p class="small">Qui trovi tutte le categorie. Rinominarne una aggiorna i cocktail associati; puoi eliminare solo categorie senza cocktail.</p>
+<div class="category-management-list" id="recipeCategoryList"></div>
+</div>
+</details>
 <div class="field">
 <label for="recipeMethod">Tecnica</label>
 <input id="recipeMethod" placeholder="Build, Shake & Strain…">
@@ -356,6 +390,13 @@ h1{font-size:32px}
 <button class="btn" type="button" id="addProductCategory">＋ Crea</button>
 </div>
 </div>
+<details class="category-manager">
+<summary>Gestisci categorie prodotti</summary>
+<div class="category-manager-content">
+<p class="small">Qui trovi tutte le categorie. Rinominarne una aggiorna i prodotti; eliminandola, i prodotti associati passano a “Senza categoria”.</p>
+<div class="category-management-list" id="productCategoryList"></div>
+</div>
+</details>
 <div id="manageProductStatus" class="status" role="status" aria-live="polite"></div>
 <div class="field order-search">
 <label for="manageProductSearch">Cerca nel catalogo</label>
@@ -477,7 +518,7 @@ const BASE_RECIPE_CATEGORIES=['Aperitivi','Signature Drink','Pre Batch','Grandi 
 const BASE_ORDER_PRODUCT_CATEGORIES=['Birre','Alcolici','Toniche','Soft Drink'];
 const recipeFormFieldIds=['recipeName','recipeCategory','recipeMethod','recipeGarnish','recipeIngredients','recipePreparation'];
 
-let recipes=[],favorites=[],orderQuantities={},orderProducts=[],customRecipeCategories=[],customOrderProductCategories=[],categories=['Tutti',...BASE_RECIPE_CATEGORIES,'★ Preferiti'],ORDER_PRODUCT_CATEGORIES=[...BASE_ORDER_PRODUCT_CATEGORIES],orderProductsLoaded=false,orderProductsReloadRequested=false,orderGenerated=false,orderSearchTerm='',orderManageSearchTerm='',orderCategoryFilter='Tutti',activeCategory='Tutti',searchTerm='',adminCategory='Tutti',adminSearchTerm='',recipeFormBaseline='',currentUser=null,isAdmin=false,isOwner=false,isPasswordRecovery=false,editingId=null,channel=null,orderCatalogId=null,categoryCatalogId=null,isOrderProductsLoading=false;
+let recipes=[],favorites=[],orderQuantities={},orderProducts=[],customRecipeCategories=[...BASE_RECIPE_CATEGORIES],customOrderProductCategories=[...BASE_ORDER_PRODUCT_CATEGORIES],categories=['Tutti',...BASE_RECIPE_CATEGORIES,'★ Preferiti'],ORDER_PRODUCT_CATEGORIES=[...BASE_ORDER_PRODUCT_CATEGORIES],orderProductsLoaded=false,orderProductsReloadRequested=false,orderGenerated=false,orderSearchTerm='',orderManageSearchTerm='',orderCategoryFilter='Tutti',activeCategory='Tutti',searchTerm='',adminCategory='Tutti',adminSearchTerm='',recipeFormBaseline='',currentUser=null,isAdmin=false,isOwner=false,isPasswordRecovery=false,editingId=null,channel=null,orderCatalogId=null,categoryCatalogId=null,isOrderProductsLoading=false;
 
 try{
 favorites=JSON.parse(localStorage.getItem(FAV_KEY)||'[]');
@@ -603,8 +644,11 @@ return [...new Map(names.map(name=>String(name||'').trim()).filter(Boolean).map(
 }
 
 function updateCategoryOptions(){
-categories=['Tutti',...BASE_RECIPE_CATEGORIES,...customRecipeCategories,'★ Preferiti'];
-ORDER_PRODUCT_CATEGORIES=[...BASE_ORDER_PRODUCT_CATEGORIES,...customOrderProductCategories];
+categories=['Tutti',...customRecipeCategories,'★ Preferiti'];
+ORDER_PRODUCT_CATEGORIES=[...customOrderProductCategories];
+if(!categories.includes(activeCategory))activeCategory='Tutti';
+if(!categories.includes(adminCategory))adminCategory='Tutti';
+if(!['Tutti','Senza categoria',...ORDER_PRODUCT_CATEGORIES].includes(orderCategoryFilter))orderCategoryFilter='Tutti';
 recipeCategoryOptions($('recipeCategory').value);
 productCategoryOptions($('orderProductCategory'),$('orderProductCategory').value);
 if(!$('recipeArea').hidden){
@@ -614,13 +658,15 @@ renderList();
 if(!$('editCocktailsSection').hidden)renderAdminList();
 if(!$('loadListSection').hidden)renderOrderList();
 if(!$('manageProductsSection').hidden)renderProductManagement();
+renderCategoryManagement('cocktail');
+renderCategoryManagement('product');
 }
 
 function categoryCatalogPayload(entries){
 return {
 name:CATEGORY_CATALOG_NAME,
 category:CATEGORY_CATALOG_CATEGORY,
-method:'Categorie condivise',
+method:'Categorie condivise v2',
 ingredients:entries,
 note:'',
 preparation:'',
@@ -628,9 +674,57 @@ custom:true
 };
 }
 
+async function saveCategoryCatalogEntries(entries){
+let result;
+const payload=categoryCatalogPayload(entries);
+if(categoryCatalogId){
+result=await db.from('recipes').update(payload).eq('id',categoryCatalogId);
+}else{
+result=await db.from('recipes').insert(payload).select('id').single();
+if(!result.error)categoryCatalogId=result.data.id;
+}
+if(result.error)throw result.error;
+}
+
+function renderCategoryManagement(type){
+const container=$(type==='cocktail'?'recipeCategoryList':'productCategoryList');
+if(!container)return;
+container.replaceChildren();
+const names=type==='cocktail'?customRecipeCategories:customOrderProductCategories;
+if(!names.length){
+container.appendChild(el('div','category-manager-empty','Non ci sono categorie da gestire.'));
+return;
+}
+
+names.forEach(name=>{
+const row=el('div','category-management-row');
+const input=el('input');
+input.type='text';
+input.maxLength=40;
+input.value=name;
+input.setAttribute('aria-label','Rinomina categoria '+name);
+const save=el('button','btn primary','Salva');
+save.type='button';
+save.setAttribute('aria-label','Salva categoria '+name);
+save.onclick=()=>renameCategory(type,name,input.value).catch(error=>{
+console.error('Errore imprevisto durante la rinomina della categoria.',error);
+status(categoryStatusId(type),'Errore durante la rinomina: '+(error.message||'Riprova.'),'error');
+});
+const remove=el('button','btn danger','Elimina');
+remove.type='button';
+remove.setAttribute('aria-label','Elimina categoria '+name);
+remove.onclick=()=>deleteCategory(type,name).catch(error=>{
+console.error('Errore imprevisto durante l’eliminazione della categoria.',error);
+status(categoryStatusId(type),'Errore durante l’eliminazione: '+(error.message||'Riprova.'),'error');
+});
+row.append(input,save,remove);
+container.appendChild(row);
+});
+}
+
 async function loadCustomCategories(){
 const {data,error}=await db.from('recipes')
-.select('id,ingredients')
+.select('id,ingredients,method')
 .eq('name',CATEGORY_CATALOG_NAME)
 .eq('category',CATEGORY_CATALOG_CATEGORY)
 .limit(1)
@@ -639,8 +733,11 @@ if(error)throw error;
 
 categoryCatalogId=data?.id||null;
 const entries=Array.isArray(data?.ingredients)?data.ingredients:[];
-customRecipeCategories=normalizeCategoryNames(entries.filter(entry=>Array.isArray(entry)&&entry[0]==='cocktail').map(entry=>entry[1]));
-customOrderProductCategories=normalizeCategoryNames(entries.filter(entry=>Array.isArray(entry)&&entry[0]==='product').map(entry=>entry[1]));
+const savedRecipeCategories=entries.filter(entry=>Array.isArray(entry)&&entry[0]==='cocktail').map(entry=>entry[1]);
+const savedProductCategories=entries.filter(entry=>Array.isArray(entry)&&entry[0]==='product').map(entry=>entry[1]);
+const isCurrentCatalog=data?.method==='Categorie condivise v2';
+customRecipeCategories=normalizeCategoryNames(isCurrentCatalog?savedRecipeCategories:[...BASE_RECIPE_CATEGORIES,...savedRecipeCategories]);
+customOrderProductCategories=normalizeCategoryNames(isCurrentCatalog?savedProductCategories:[...BASE_ORDER_PRODUCT_CATEGORIES,...savedProductCategories]);
 updateCategoryOptions();
 }
 
@@ -662,23 +759,12 @@ input.focus();
 return;
 }
 
-const entries=[
-...customRecipeCategories.map(value=>['cocktail',value]),
-...customOrderProductCategories.map(value=>['product',value]),
-[type,category]
-];
+const entries=categoryEntries(type,category);
 const button=$(type==='cocktail'?'addRecipeCategory':'addProductCategory');
 button.disabled=true;
 button.textContent='Salvataggio…';
 try{
-let result;
-if(categoryCatalogId){
-result=await db.from('recipes').update(categoryCatalogPayload(entries)).eq('id',categoryCatalogId);
-}else{
-result=await db.from('recipes').insert(categoryCatalogPayload(entries)).select('id').single();
-if(!result.error)categoryCatalogId=result.data.id;
-}
-if(result.error)throw result.error;
+await saveCategoryCatalogEntries(entries);
 if(type==='cocktail'){
 customRecipeCategories=normalizeCategoryNames([...customRecipeCategories,category]);
 }else{
@@ -696,6 +782,197 @@ status(statusId,'Errore durante la creazione: '+(error.message||'Riprova.'),'err
 }finally{
 button.disabled=false;
 button.textContent='＋ Crea';
+}
+}
+
+function categoryEntries(addType,addName){
+return [
+...customRecipeCategories.map(value=>['cocktail',value]),
+...customOrderProductCategories.map(value=>['product',value]),
+...(addType&&addName?[[addType,addName]]:[])
+];
+}
+
+function categoryStatusId(type){
+return type==='cocktail'?'saveMessage':'manageProductStatus';
+}
+
+async function renameCategory(type,oldName,newName){
+const statusId=categoryStatusId(type);
+const category=newName.trim();
+const existing=type==='cocktail'?categories.filter(value=>value!=='Tutti'&&value!=='★ Preferiti'):ORDER_PRODUCT_CATEGORIES;
+if(!category){
+status(statusId,'Il nome della categoria non può essere vuoto.','error');
+return;
+}
+if(normalize(category)===normalize(oldName)){
+status(statusId,'La categoria non è stata modificata.','');
+return;
+}
+if(existing.some(value=>normalize(value)===normalize(category))||
+category===CATEGORY_CATALOG_CATEGORY||category===ORDER_CATALOG_CATEGORY){
+status(statusId,'Esiste già una categoria con questo nome.','error');
+return;
+}
+
+if(type==='cocktail'){
+const {error}=await db.from('recipes').update({category}).eq('category',oldName);
+if(error){
+console.error('Impossibile rinominare la categoria cocktail.',error);
+status(statusId,'Errore durante l’aggiornamento dei cocktail: '+error.message,'error');
+return;
+}
+const previousCategories=customRecipeCategories;
+const selectedCategory=$('recipeCategory').value;
+customRecipeCategories=customRecipeCategories.map(value=>value===oldName?category:value);
+try{
+await saveCategoryCatalogEntries(categoryEntries());
+updateCategoryOptions();
+if(selectedCategory===oldName){
+$('recipeCategory').value=category;
+const baseline=JSON.parse(recipeFormBaseline);
+const categoryIndex=recipeFormFieldIds.indexOf('recipeCategory');
+if(baseline[categoryIndex]===oldName){
+baseline[categoryIndex]=category;
+recipeFormBaseline=JSON.stringify(baseline);
+}
+updateUnsavedWarning();
+}
+status(statusId,'Categoria rinominata e cocktail aggiornati.','ok');
+}catch(error){
+console.error('Impossibile salvare la categoria rinominata.',error);
+customRecipeCategories=previousCategories;
+try{
+const {error:rollbackError}=await db.from('recipes').update({category:oldName}).eq('category',category);
+if(rollbackError)throw rollbackError;
+updateCategoryOptions();
+if(selectedCategory===oldName)$('recipeCategory').value=oldName;
+status(statusId,'Salvataggio non riuscito; modifiche ai cocktail annullate. '+error.message,'error');
+}catch(rollbackError){
+console.error('Impossibile annullare la rinomina dei cocktail.',rollbackError);
+updateCategoryOptions();
+if(selectedCategory===oldName)$('recipeCategory').value=oldName;
+status(statusId,'Errore nel salvataggio e nel ripristino: '+rollbackError.message,'error');
+}
+}
+return;
+}
+
+if(!orderProductsLoaded){
+status(statusId,'Il catalogo prodotti non è ancora disponibile. Riprova tra poco.','error');
+return;
+}
+
+const previousCategories=customOrderProductCategories;
+const previousProducts=orderProducts.map(product=>({...product}));
+const selectedCategory=$('orderProductCategory').value;
+customOrderProductCategories=customOrderProductCategories.map(value=>value===oldName?category:value);
+updateCategoryOptions();
+if(selectedCategory===oldName)$('orderProductCategory').value=category;
+let productsSaved=false;
+try{
+await saveOrderProductNames(previousProducts.map(product=>({
+...product,
+category:product.category===oldName?category:product.category
+})));
+productsSaved=true;
+await saveCategoryCatalogEntries(categoryEntries());
+updateCategoryOptions();
+status(statusId,'Categoria rinominata e prodotti aggiornati.','ok');
+}catch(error){
+console.error('Impossibile rinominare la categoria prodotti.',error);
+customOrderProductCategories=previousCategories;
+updateCategoryOptions();
+if(selectedCategory===oldName)$('orderProductCategory').value=oldName;
+if(productsSaved){
+try{
+await saveOrderProductNames(previousProducts);
+status(statusId,'Salvataggio non riuscito; modifiche ai prodotti annullate. '+error.message,'error');
+}catch(rollbackError){
+console.error('Impossibile annullare la rinomina dei prodotti.',rollbackError);
+status(statusId,'Errore nel salvataggio e nel ripristino: '+rollbackError.message,'error');
+}
+}else{
+status(statusId,'Errore durante la rinomina: '+error.message,'error');
+}
+}
+}
+
+async function deleteCategory(type,name){
+const statusId=categoryStatusId(type);
+const confirmation=type==='product'
+?'Eliminare la categoria "'+name+'"? I prodotti associati passeranno a Senza categoria.'
+:'Eliminare la categoria "'+name+'"? È possibile solo se non è usata da cocktail.';
+if(!confirm(confirmation))return;
+
+const previousRecipeCategories=customRecipeCategories;
+const previousProductCategories=customOrderProductCategories;
+if(type==='cocktail'){
+const {data,error}=await db.from('recipes')
+.select('id')
+.eq('category',name)
+.limit(1);
+if(error){
+console.error('Impossibile verificare l’uso della categoria cocktail.',error);
+status(statusId,'Errore durante il controllo: '+error.message,'error');
+return;
+}
+if(data?.length){
+status(statusId,'Non puoi eliminare questa categoria: è assegnata a uno o più cocktail. Rinominala se vuoi conservarne le ricette.','error');
+return;
+}
+customRecipeCategories=customRecipeCategories.filter(value=>value!==name);
+}else{
+if(!orderProductsLoaded){
+status(statusId,'Il catalogo prodotti non è ancora disponibile. Riprova tra poco.','error');
+return;
+}
+const previousProducts=orderProducts.map(product=>({...product}));
+const uncategorizedProducts=previousProducts.map(product=>
+product.category===name?{...product,category:''}:product
+);
+customOrderProductCategories=customOrderProductCategories.filter(value=>value!==name);
+try{
+if(uncategorizedProducts.some((product,index)=>product.category!==previousProducts[index].category)){
+await saveOrderProductNames(uncategorizedProducts);
+}
+await saveCategoryCatalogEntries(categoryEntries());
+updateCategoryOptions();
+status(statusId,'Categoria eliminata. I prodotti associati sono ora senza categoria.','ok');
+return;
+}catch(error){
+console.error('Impossibile eliminare la categoria prodotti.',error);
+customOrderProductCategories=previousProductCategories;
+updateCategoryOptions();
+if(uncategorizedProducts.some((product,index)=>product.category!==previousProducts[index].category)){
+try{
+await saveOrderProductNames(previousProducts);
+}catch(rollbackError){
+console.error('Impossibile ripristinare le categorie dei prodotti.',rollbackError);
+status(statusId,'Errore nel salvataggio e nel ripristino: '+rollbackError.message,'error');
+return;
+}
+}
+status(statusId,'Errore durante l’eliminazione: '+error.message,'error');
+return;
+}
+}
+
+try{
+await saveCategoryCatalogEntries(categoryEntries());
+updateCategoryOptions();
+status(statusId,'Categoria eliminata.','ok');
+}catch(error){
+console.error('Impossibile eliminare la categoria.',error);
+try{
+await loadCustomCategories();
+}catch(reloadError){
+console.error('Impossibile ricaricare le categorie dopo un errore.',reloadError);
+customRecipeCategories=previousRecipeCategories;
+customOrderProductCategories=previousProductCategories;
+updateCategoryOptions();
+}
+status(statusId,'Errore durante l’eliminazione: '+error.message,'error');
 }
 }
 
@@ -1993,5 +2270,6 @@ box.appendChild(row);
 </script>
 </body>
 </html>
+
 
 
