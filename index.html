@@ -114,6 +114,9 @@ h1{font-family:Georgia,"Times New Roman",serif;font-size:clamp(32px,5vw,46px);fo
 .order-add{display:flex;align-items:flex-end;gap:9px;max-width:560px;margin:16px 0}
 .order-add .field{flex:1}
 .order-add .btn{flex-shrink:0}
+.category-create{margin:0 0 16px}
+.category-create-control{display:flex;gap:8px}
+.category-create-control .btn{flex-shrink:0}
 .order-search{max-width:560px;margin:16px 0 8px}
 .order-category-filters{display:flex;gap:8px;overflow-x:auto;padding:8px 0 12px;scrollbar-width:none}
 .order-category-filters::-webkit-scrollbar{display:none}
@@ -256,6 +259,13 @@ h1{font-size:32px}
 <option>Pre Batch</option>
 </select>
 </div>
+<div class="field span2 category-create">
+<label for="recipeNewCategory">Crea una nuova categoria cocktail</label>
+<div class="category-create-control">
+<input id="recipeNewCategory" maxlength="40" placeholder="Es. Analcolici">
+<button class="btn" type="button" id="addRecipeCategory">＋ Crea</button>
+</div>
+</div>
 <div class="field">
 <label for="recipeMethod">Tecnica</label>
 <input id="recipeMethod" placeholder="Build, Shake & Strain…">
@@ -339,6 +349,13 @@ h1{font-size:32px}
 </div>
 <button class="btn primary" type="submit">＋ Aggiungi</button>
 </form>
+<div class="field category-create">
+<label for="productNewCategory">Crea una nuova categoria prodotti</label>
+<div class="category-create-control">
+<input id="productNewCategory" maxlength="40" placeholder="Es. Succhi">
+<button class="btn" type="button" id="addProductCategory">＋ Crea</button>
+</div>
+</div>
 <div id="manageProductStatus" class="status" role="status" aria-live="polite"></div>
 <div class="field order-search">
 <label for="manageProductSearch">Cerca nel catalogo</label>
@@ -450,15 +467,17 @@ const BASE_RECIPES = [
 ];
 
 const $=id=>document.getElementById(id);
-const categories=['Tutti','Aperitivi','Signature Drink','Pre Batch','Grandi Classici','★ Preferiti'];
 const FAV_KEY='gigis-bar-favorites-v3';
 const ORDER_KEY='gigis-bar-order-quantities-v1';
 const ORDER_CATALOG_NAME='__gigis_bar_order_catalog__';
 const ORDER_CATALOG_CATEGORY='__gigis_bar_order_catalog__';
-const ORDER_PRODUCT_CATEGORIES=['Birre','Alcolici','Toniche','Soft Drink'];
+const CATEGORY_CATALOG_NAME='__gigis_bar_category_catalog__';
+const CATEGORY_CATALOG_CATEGORY='__gigis_bar_category_catalog__';
+const BASE_RECIPE_CATEGORIES=['Aperitivi','Signature Drink','Pre Batch','Grandi Classici'];
+const BASE_ORDER_PRODUCT_CATEGORIES=['Birre','Alcolici','Toniche','Soft Drink'];
 const recipeFormFieldIds=['recipeName','recipeCategory','recipeMethod','recipeGarnish','recipeIngredients','recipePreparation'];
 
-let recipes=[],favorites=[],orderQuantities={},orderProducts=[],orderProductsLoaded=false,orderProductsReloadRequested=false,orderGenerated=false,orderSearchTerm='',orderManageSearchTerm='',orderCategoryFilter='Tutti',activeCategory='Tutti',searchTerm='',adminCategory='Tutti',adminSearchTerm='',recipeFormBaseline='',currentUser=null,isAdmin=false,isOwner=false,isPasswordRecovery=false,editingId=null,channel=null,orderCatalogId=null,isOrderProductsLoading=false;
+let recipes=[],favorites=[],orderQuantities={},orderProducts=[],customRecipeCategories=[],customOrderProductCategories=[],categories=['Tutti',...BASE_RECIPE_CATEGORIES,'★ Preferiti'],ORDER_PRODUCT_CATEGORIES=[...BASE_ORDER_PRODUCT_CATEGORIES],orderProductsLoaded=false,orderProductsReloadRequested=false,orderGenerated=false,orderSearchTerm='',orderManageSearchTerm='',orderCategoryFilter='Tutti',activeCategory='Tutti',searchTerm='',adminCategory='Tutti',adminSearchTerm='',recipeFormBaseline='',currentUser=null,isAdmin=false,isOwner=false,isPasswordRecovery=false,editingId=null,channel=null,orderCatalogId=null,categoryCatalogId=null,isOrderProductsLoading=false;
 
 try{
 favorites=JSON.parse(localStorage.getItem(FAV_KEY)||'[]');
@@ -552,6 +571,132 @@ note:r.note||'',
 preparation:r.preparation||'',
 custom:!!r.custom
 };
+}
+
+function recipeCategoryOptions(selected){
+const select=$('recipeCategory');
+select.replaceChildren();
+categories.filter(category=>category!=='Tutti'&&category!=='★ Preferiti').forEach(category=>{
+const option=el('option','',category);
+option.value=category;
+select.appendChild(option);
+});
+if(selected&&[...select.options].some(option=>option.value===selected))select.value=selected;
+}
+
+function productCategoryOptions(select,selected,emptyLabel='Scegli categoria'){
+select.replaceChildren();
+const emptyOption=el('option','',emptyLabel);
+emptyOption.value='';
+select.appendChild(emptyOption);
+ORDER_PRODUCT_CATEGORIES.forEach(category=>{
+const option=el('option','',category);
+option.value=category;
+select.appendChild(option);
+});
+if(selected&&[...select.options].some(option=>option.value===selected))select.value=selected;
+}
+
+function normalizeCategoryNames(names){
+return [...new Map(names.map(name=>String(name||'').trim()).filter(Boolean).map(name=>[normalize(name),name])).values()]
+.sort((a,b)=>a.localeCompare(b,'it'));
+}
+
+function updateCategoryOptions(){
+categories=['Tutti',...BASE_RECIPE_CATEGORIES,...customRecipeCategories,'★ Preferiti'];
+ORDER_PRODUCT_CATEGORIES=[...BASE_ORDER_PRODUCT_CATEGORIES,...customOrderProductCategories];
+recipeCategoryOptions($('recipeCategory').value);
+productCategoryOptions($('orderProductCategory'),$('orderProductCategory').value);
+if(!$('recipeArea').hidden){
+renderFilters();
+renderList();
+}
+if(!$('editCocktailsSection').hidden)renderAdminList();
+if(!$('loadListSection').hidden)renderOrderList();
+if(!$('manageProductsSection').hidden)renderProductManagement();
+}
+
+function categoryCatalogPayload(entries){
+return {
+name:CATEGORY_CATALOG_NAME,
+category:CATEGORY_CATALOG_CATEGORY,
+method:'Categorie condivise',
+ingredients:entries,
+note:'',
+preparation:'',
+custom:true
+};
+}
+
+async function loadCustomCategories(){
+const {data,error}=await db.from('recipes')
+.select('id,ingredients')
+.eq('name',CATEGORY_CATALOG_NAME)
+.eq('category',CATEGORY_CATALOG_CATEGORY)
+.limit(1)
+.maybeSingle();
+if(error)throw error;
+
+categoryCatalogId=data?.id||null;
+const entries=Array.isArray(data?.ingredients)?data.ingredients:[];
+customRecipeCategories=normalizeCategoryNames(entries.filter(entry=>Array.isArray(entry)&&entry[0]==='cocktail').map(entry=>entry[1]));
+customOrderProductCategories=normalizeCategoryNames(entries.filter(entry=>Array.isArray(entry)&&entry[0]==='product').map(entry=>entry[1]));
+updateCategoryOptions();
+}
+
+async function createCategory(type,name){
+const input=$(type==='cocktail'?'recipeNewCategory':'productNewCategory');
+const category=name.trim();
+const statusId=type==='cocktail'?'saveMessage':'manageProductStatus';
+const existing=type==='cocktail'?categories.filter(value=>value!=='Tutti'&&value!=='★ Preferiti'):ORDER_PRODUCT_CATEGORIES;
+const reserved=type==='cocktail'?['Tutti','★ Preferiti']:['Senza categoria'];
+if(!category){
+status(statusId,'Inserisci il nome della categoria.','error');
+input.focus();
+return;
+}
+if([...existing,...reserved].some(value=>normalize(value)===normalize(category))||
+category===CATEGORY_CATALOG_CATEGORY||category===ORDER_CATALOG_CATEGORY){
+status(statusId,'Questa categoria esiste già o è riservata.','error');
+input.focus();
+return;
+}
+
+const entries=[
+...customRecipeCategories.map(value=>['cocktail',value]),
+...customOrderProductCategories.map(value=>['product',value]),
+[type,category]
+];
+const button=$(type==='cocktail'?'addRecipeCategory':'addProductCategory');
+button.disabled=true;
+button.textContent='Salvataggio…';
+try{
+let result;
+if(categoryCatalogId){
+result=await db.from('recipes').update(categoryCatalogPayload(entries)).eq('id',categoryCatalogId);
+}else{
+result=await db.from('recipes').insert(categoryCatalogPayload(entries)).select('id').single();
+if(!result.error)categoryCatalogId=result.data.id;
+}
+if(result.error)throw result.error;
+if(type==='cocktail'){
+customRecipeCategories=normalizeCategoryNames([...customRecipeCategories,category]);
+}else{
+customOrderProductCategories=normalizeCategoryNames([...customOrderProductCategories,category]);
+}
+updateCategoryOptions();
+if(type==='cocktail')$('recipeCategory').value=category;
+else $('orderProductCategory').value=category;
+input.value='';
+if(type==='cocktail')updateUnsavedWarning();
+status(statusId,'Categoria creata e condivisa.','ok');
+}catch(error){
+console.error('Impossibile creare la categoria condivisa.',error);
+status(statusId,'Errore durante la creazione: '+(error.message||'Riprova.'),'error');
+}finally{
+button.disabled=false;
+button.textContent='＋ Crea';
+}
 }
 
 function recipePayload(r){
@@ -856,12 +1001,13 @@ return data?.role==='admin';
 }
 
 async function seedIfEmpty(){
-const {count,error}=await db.from('recipes')
-.select('id',{count:'exact',head:true})
-.neq('category',ORDER_CATALOG_CATEGORY);
+const {data,error}=await db.from('recipes').select('category');
 if(error)throw error;
 
-if(count===0&&(isAdmin||isOwner)){
+const recipeCount=(data||[]).filter(row=>
+row.category!==ORDER_CATALOG_CATEGORY&&row.category!==CATEGORY_CATALOG_CATEGORY
+).length;
+if(recipeCount===0&&(isAdmin||isOwner)){
 const rows=BASE_RECIPES.map(r=>({
 ...recipePayload({...r,custom:false}),
 name:r.name
@@ -877,7 +1023,7 @@ const {data,error}=await db.from('recipes').select('*').order('name');
 if(error)throw error;
 
 recipes=(data||[])
-.filter(recipe=>recipe.category!==ORDER_CATALOG_CATEGORY)
+.filter(recipe=>recipe.category!==ORDER_CATALOG_CATEGORY&&recipe.category!==CATEGORY_CATALOG_CATEGORY)
 .map(mapRecipe);
 
 renderFilters();
@@ -897,6 +1043,7 @@ schema:'public',
 table:'recipes'
 },async()=>{
 try{
+await loadCustomCategories();
 await loadRecipes();
 await loadOrderProducts();
 }catch(e){
@@ -943,6 +1090,7 @@ isAdmin=isOwner?true:await getRole();
 
 showAuth();
 await seedIfEmpty();
+await loadCustomCategories();
 await loadRecipes();
 await startRealtime();
 await loadOrderProducts();
@@ -1320,15 +1468,7 @@ const categoryLabel=el('label','','Categoria');
 const categorySelect=el('select');
 categorySelect.id='managedProductCategory'+index;
 categoryLabel.htmlFor=categorySelect.id;
-const emptyOption=el('option','','Senza categoria');
-emptyOption.value='';
-categorySelect.appendChild(emptyOption);
-ORDER_PRODUCT_CATEGORIES.forEach(value=>{
-const option=el('option','',value);
-option.value=value;
-categorySelect.appendChild(option);
-});
-categorySelect.value=category;
+productCategoryOptions(categorySelect,category,'Senza categoria');
 categoryField.append(categoryLabel,categorySelect);
 fields.append(nameField,categoryField);
 
@@ -1529,6 +1669,36 @@ renderOrderList();
 $('manageProductSearch').addEventListener('input',()=>{
 orderManageSearchTerm=$('manageProductSearch').value;
 renderProductManagement();
+});
+
+$('addRecipeCategory').addEventListener('click',()=>{
+if(!isAdmin&&!isOwner){
+status('saveMessage','Solo un amministratore può creare categorie.','error');
+return;
+}
+createCategory('cocktail',$('recipeNewCategory').value);
+});
+
+$('recipeNewCategory').addEventListener('keydown',event=>{
+if(event.key==='Enter'){
+event.preventDefault();
+$('addRecipeCategory').click();
+}
+});
+
+$('addProductCategory').addEventListener('click',()=>{
+if(!isAdmin&&!isOwner){
+status('manageProductStatus','Solo un amministratore può creare categorie.','error');
+return;
+}
+createCategory('product',$('productNewCategory').value);
+});
+
+$('productNewCategory').addEventListener('keydown',event=>{
+if(event.key==='Enter'){
+event.preventDefault();
+$('addProductCategory').click();
+}
 });
 
 $('orderProductForm').addEventListener('submit',event=>{
