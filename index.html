@@ -311,7 +311,7 @@ h1{font-size:32px}
 
 <section class="admin-view" id="loadListSection" hidden>
 <h2>Lista carichi</h2>
-<p class="small">Aggiungi o modifica i prodotti del catalogo condiviso. Le modifiche sono visibili a tutti gli utenti collegati. Poi indica quanti pezzi o confezioni ti servono; lascia vuoto o metti 0 per quelli che non vuoi caricare.</p>
+<p class="small">Il catalogo è condiviso tra gli utenti. Tutti possono inserire le quantità e creare la propria lista; gli amministratori possono gestire i prodotti.</p>
 <form class="order-add" id="orderProductForm">
 <div class="field">
 <label for="orderProductName">Nuovo prodotto</label>
@@ -416,10 +416,11 @@ const $=id=>document.getElementById(id);
 const categories=['Tutti','Aperitivi','Signature Drink','Pre Batch','Grandi Classici','★ Preferiti'];
 const FAV_KEY='gigis-bar-favorites-v3';
 const ORDER_KEY='gigis-bar-order-quantities-v1';
-const ORDER_CHANNEL='shared-order-products-live';
+const ORDER_CATALOG_NAME='__gigis_bar_order_catalog__';
+const ORDER_CATALOG_CATEGORY='__gigis_bar_order_catalog__';
 const recipeFormFieldIds=['recipeName','recipeCategory','recipeMethod','recipeGarnish','recipeIngredients','recipePreparation'];
 
-let recipes=[],favorites=[],orderQuantities={},orderProducts=[],orderProductsLoaded=false,orderProductsReloadRequested=false,orderGenerated=false,activeCategory='Tutti',searchTerm='',adminCategory='Tutti',adminSearchTerm='',recipeFormBaseline='',currentUser=null,isAdmin=false,isOwner=false,isPasswordRecovery=false,editingId=null,channel=null,orderChannel=null,isOrderProductsLoading=false;
+let recipes=[],favorites=[],orderQuantities={},orderProducts=[],orderProductsLoaded=false,orderProductsReloadRequested=false,orderGenerated=false,activeCategory='Tutti',searchTerm='',adminCategory='Tutti',adminSearchTerm='',recipeFormBaseline='',currentUser=null,isAdmin=false,isOwner=false,isPasswordRecovery=false,editingId=null,channel=null,orderCatalogId=null,isOrderProductsLoading=false;
 
 try{
 favorites=JSON.parse(localStorage.getItem(FAV_KEY)||'[]');
@@ -571,6 +572,7 @@ $('memberArea').hidden=!logged;
 $('recoveryArea').hidden=!recovering;
 $('manageArea').hidden=!canManage;
 $('recipeArea').hidden=!logged;
+$('orderProductForm').hidden=!canManage;
 $('menuEditCocktails').hidden=!canManage;
 $('menuAddCocktail').hidden=!canManage;
 $('menuManageStaff').hidden=!(logged&&isOwner);
@@ -784,14 +786,11 @@ await db.removeChannel(channel);
 channel=null;
 }
 
-if(orderChannel){
-await db.removeChannel(orderChannel);
-orderChannel=null;
-}
-
 orderProducts=[];
 orderProductsLoaded=false;
+orderCatalogId=null;
 isOrderProductsLoading=false;
+orderProductsReloadRequested=false;
 
 showAuth();
 }
@@ -813,7 +812,9 @@ return data?.role==='admin';
 }
 
 async function seedIfEmpty(){
-const {count,error}=await db.from('recipes').select('id',{count:'exact',head:true});
+const {count,error}=await db.from('recipes')
+.select('id',{count:'exact',head:true})
+.neq('category',ORDER_CATALOG_CATEGORY);
 if(error)throw error;
 
 if(count===0&&(isAdmin||isOwner)){
@@ -831,7 +832,9 @@ async function loadRecipes(){
 const {data,error}=await db.from('recipes').select('*').order('name');
 if(error)throw error;
 
-recipes=(data||[]).map(mapRecipe);
+recipes=(data||[])
+.filter(recipe=>recipe.category!==ORDER_CATALOG_CATEGORY)
+.map(mapRecipe);
 
 renderFilters();
 renderList();
@@ -851,6 +854,7 @@ table:'recipes'
 },async()=>{
 try{
 await loadRecipes();
+await loadOrderProducts();
 }catch(e){
 console.error(e);
 }
@@ -877,15 +881,13 @@ if(!currentUser){
 recipes=[];
 orderProducts=[];
 orderProductsLoaded=false;
+orderCatalogId=null;
+isOrderProductsLoading=false;
+orderProductsReloadRequested=false;
 
 if(channel){
 await db.removeChannel(channel);
 channel=null;
-}
-
-if(orderChannel){
-await db.removeChannel(orderChannel);
-orderChannel=null;
 }
 
 showAuth();
@@ -899,7 +901,6 @@ showAuth();
 await seedIfEmpty();
 await loadRecipes();
 await startRealtime();
-await startOrderProductsRealtime();
 await loadOrderProducts();
 }catch(e){
 status('loginError',e.message||'Errore nel caricamento del ricettario.','error');
@@ -988,16 +989,41 @@ f.appendChild(b);
 
 function getOrderProducts(){
 return orderProducts
-.map(product=>[product.id,product.name])
+.map(name=>[normalize(name),name])
 .sort((a,b)=>a[1].localeCompare(b[1],'it'));
 }
 
 function orderProductLoadError(error){
 const message=String(error?.message||'');
-if(message.includes('bar_products')&&(message.includes('does not exist')||message.includes('schema cache'))){
-return 'Il catalogo condiviso non è ancora configurato. Applica la migrazione SQL supabase/migrations/20261111030000_shared_bar_products.sql al progetto Supabase.';
-}
 return message||'Errore nel caricamento del catalogo condiviso.';
+}
+
+function uniqueProductNames(names){
+const unique=new Map();
+names.forEach(value=>{
+const name=String(value||'').trim();
+const key=normalize(name);
+if(name&&key&&!unique.has(key))unique.set(key,name);
+});
+return [...unique.values()].sort((a,b)=>a.localeCompare(b,'it'));
+}
+
+function recipeIngredientsAsProducts(){
+return uniqueProductNames(recipes.flatMap(recipe=>
+recipe.ingredients.map(pair=>pair?.[0]||'')
+));
+}
+
+function orderCatalogPayload(names){
+return {
+name:ORDER_CATALOG_NAME,
+category:ORDER_CATALOG_CATEGORY,
+method:'Catalogo condiviso',
+ingredients:names.map(name=>[name,'']),
+note:'',
+preparation:'',
+custom:true
+};
 }
 
 async function loadOrderProducts(){
@@ -1011,21 +1037,42 @@ isOrderProductsLoading=true;
 status('orderStatus','Caricamento prodotti condivisi…');
 
 try{
-const {data,error}=await db.from('bar_products').select('id,name').order('name');
+const {data,error}=await db.from('recipes')
+.select('id,ingredients')
+.eq('name',ORDER_CATALOG_NAME)
+.eq('category',ORDER_CATALOG_CATEGORY)
+.limit(1)
+.maybeSingle();
 if(error)throw error;
 
-const previousIds=new Set(orderProducts.map(product=>product.id));
-orderProducts=(data||[]).map(product=>({id:product.id,name:product.name}));
-const currentIds=new Set(orderProducts.map(product=>product.id));
-previousIds.forEach(id=>{
-if(!currentIds.has(id))delete orderQuantities[id];
-});
-if(previousIds.size!==currentIds.size||[...previousIds].some(id=>!currentIds.has(id))){
-saveOrderQuantities();
+orderCatalogId=data?.id||null;
+if(data){
+const names=Array.isArray(data.ingredients)
+?data.ingredients.map(pair=>Array.isArray(pair)?pair[0]:'')
+:[];
+orderProducts=uniqueProductNames(names);
+}else{
+orderProducts=recipeIngredientsAsProducts();
+
+if(isAdmin||isOwner){
+const {data:created,error:createError}=await db.from('recipes')
+.insert(orderCatalogPayload(orderProducts))
+.select('id,ingredients')
+.single();
+if(createError)throw createError;
+orderCatalogId=created.id;
 }
+}
+
 orderProductsLoaded=true;
 renderOrderList();
-status('orderStatus','Catalogo aggiornato.', 'ok');
+if(!data&&(isAdmin||isOwner)){
+status('orderStatus','Catalogo condiviso creato.','ok');
+}else if(!data){
+status('orderStatus','Prodotti ricavati dal ricettario condiviso. Un amministratore può attivare la gestione del catalogo.');
+}else{
+status('orderStatus','Catalogo aggiornato.','ok');
+}
 }catch(error){
 console.error('Impossibile caricare il catalogo prodotti condiviso.',error);
 orderProductsLoaded=false;
@@ -1039,21 +1086,21 @@ loadOrderProducts();
 }
 }
 
-async function startOrderProductsRealtime(){
-if(orderChannel)await db.removeChannel(orderChannel);
+async function saveOrderProductNames(names){
+if(!isAdmin&&!isOwner)throw new Error('Solo un amministratore può modificare il catalogo condiviso.');
 
-orderChannel=db.channel(ORDER_CHANNEL)
-.on('postgres_changes',{
-event:'*',
-schema:'public',
-table:'bar_products'
-},()=>loadOrderProducts())
-.subscribe(realtimeStatus=>{
-if(realtimeStatus==='CHANNEL_ERROR'||realtimeStatus==='TIMED_OUT'){
-console.error('Realtime catalogo non disponibile:',realtimeStatus);
-if(currentUser)status('orderStatus','Aggiornamenti automatici non disponibili.','error');
+const payload=orderCatalogPayload(uniqueProductNames(names));
+let result;
+if(orderCatalogId){
+result=await db.from('recipes').update(payload).eq('id',orderCatalogId);
+}else{
+result=await db.from('recipes').insert(payload).select('id').single();
+if(!result.error)orderCatalogId=result.data.id;
 }
-});
+
+if(result.error)throw result.error;
+orderProducts=uniqueProductNames(names);
+orderProductsLoaded=true;
 }
 
 function saveOrderQuantities(){
@@ -1112,6 +1159,7 @@ const row=el('div','order-row');
 const label=el('label','',name);
 const head=el('div','order-product-head');
 const actions=el('div','order-product-actions');
+if(isAdmin||isOwner){
 const edit=el('button','btn','Modifica');
 edit.type='button';
 edit.setAttribute('aria-label','Modifica '+name);
@@ -1134,9 +1182,19 @@ return;
 }
 
 try{
-const {error}=await db.from('bar_products').update({name:trimmedName}).eq('id',key);
-if(error)throw error;
-await loadOrderProducts();
+const names=orderProducts.map(product=>
+normalize(product)===key?trimmedName:product
+);
+const quantity=orderQuantities[key];
+await saveOrderProductNames(names);
+if(quantity!==undefined){
+orderQuantities[normalize(trimmedName)]=quantity;
+delete orderQuantities[key];
+saveOrderQuantities();
+}
+renderOrderList();
+if(orderGenerated)generateOrderList();
+status('orderStatus','Prodotto modificato nel catalogo condiviso.','ok');
 }catch(error){
 console.error('Impossibile modificare il prodotto condiviso.',error);
 status('orderStatus','Errore durante la modifica: '+orderProductLoadError(error),'error');
@@ -1150,12 +1208,12 @@ remove.onclick=async()=>{
 if(!confirm('Eliminare "'+name+'" dal catalogo prodotti?'))return;
 
 try{
-const {error}=await db.from('bar_products').delete().eq('id',key);
-if(error)throw error;
-
+await saveOrderProductNames(orderProducts.filter(product=>normalize(product)!==key));
 delete orderQuantities[key];
 saveOrderQuantities();
-await loadOrderProducts();
+renderOrderList();
+if(orderGenerated)generateOrderList();
+status('orderStatus','Prodotto eliminato dal catalogo condiviso.','ok');
 }catch(error){
 console.error('Impossibile eliminare il prodotto condiviso.',error);
 status('orderStatus','Errore durante l’eliminazione: '+orderProductLoadError(error),'error');
@@ -1163,6 +1221,7 @@ status('orderStatus','Errore durante l’eliminazione: '+orderProductLoadError(e
 };
 
 actions.append(edit,remove);
+}
 head.append(label,actions);
 
 const quantityLabel=el('label','order-quantity','Quantità');
@@ -1326,6 +1385,11 @@ renderList();
 $('orderProductForm').addEventListener('submit',event=>{
 event.preventDefault();
 
+if(!isAdmin&&!isOwner){
+status('orderStatus','Solo un amministratore può modificare il catalogo condiviso.','error');
+return;
+}
+
 const name=$('orderProductName').value.trim();
 if(!name){
 status('orderStatus','Inserisci il nome del prodotto.','error');
@@ -1344,16 +1408,8 @@ button.textContent='Aggiunta…';
 
 async function addOrderProduct(){
 try{
-const {data,error}=await db.from('bar_products')
-.insert({name})
-.select('id,name')
-.single();
-if(error)throw error;
-
-if(data&&!orderProducts.some(product=>product.id===data.id)){
-orderProducts=[...orderProducts,{id:data.id,name:data.name}];
+await saveOrderProductNames([...orderProducts,name]);
 renderOrderList();
-}
 $('orderProductForm').reset();
 status('orderStatus','Prodotto aggiunto al catalogo condiviso.','ok');
 }catch(error){
