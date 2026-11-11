@@ -99,23 +99,30 @@ h1{font-family:Georgia,"Times New Roman",serif;font-size:clamp(32px,5vw,46px);fo
 .status{margin:12px 0 0;color:var(--muted);font-size:12px;line-height:1.6}
 .status.error{color:#e4a098}
 .status.ok{color:var(--green)}
-.order-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
-.order-row{display:flex;flex-direction:column;gap:10px;padding:13px;border:1px solid #353d36;border-radius:11px;background:linear-gradient(145deg,#222823,#191e1a)}
-.order-product-head{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
-.order-row label{font-size:13px;line-height:1.4;overflow-wrap:anywhere}
-.order-product-actions{display:flex;gap:5px}
-.order-product-actions .btn{min-height:34px;padding:6px 9px;font-size:11px}
+.order-list,.product-management-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.order-row,.product-management-row{display:flex;min-width:0;flex-direction:column;gap:12px;padding:16px;border:1px solid #353d36;border-radius:12px;background:linear-gradient(145deg,#222823,#191e1a)}
+.order-product-head{display:flex;min-width:0;flex-direction:column;align-items:flex-start;gap:8px}
+.order-row label{font-size:14px;line-height:1.5;overflow-wrap:anywhere}
+.order-product-category-tag{display:inline-flex;max-width:100%;border:1px solid #5b4e31;border-radius:20px;padding:5px 9px;color:var(--gold-bright);font-size:10px;font-weight:700;letter-spacing:.6px;text-transform:uppercase}
+.product-management-fields{display:grid;grid-template-columns:minmax(0,1fr);gap:10px}
+.product-management-fields .field{min-width:0}
+.product-management-fields input,.product-management-fields select{min-width:0}
+.product-management-actions{display:flex;gap:8px;flex-wrap:wrap}
+.product-management-actions .btn{flex:1}
 .order-quantity{display:flex;align-items:center;justify-content:space-between;gap:8px;color:var(--muted);font-size:11px}
-.order-row input{width:82px;flex:0 0 82px;padding:10px;border:1px solid var(--line);border-radius:8px;background:#121612;color:var(--text);text-align:center}
+.order-row input{width:100px;flex:0 0 100px;padding:10px;border:1px solid var(--line);border-radius:8px;background:#121612;color:var(--text);text-align:center}
 .order-add{display:flex;align-items:flex-end;gap:9px;max-width:560px;margin:16px 0}
 .order-add .field{flex:1}
 .order-add .btn{flex-shrink:0}
+.order-search{max-width:560px;margin:16px 0 8px}
+.order-category-filters{display:flex;gap:8px;overflow-x:auto;padding:8px 0 12px;scrollbar-width:none}
+.order-category-filters::-webkit-scrollbar{display:none}
 .order-result{width:100%;min-height:120px;margin-top:12px;padding:14px;border:1px solid var(--line);border-radius:10px;background:#121612;color:var(--text);font:14px/1.7 ui-monospace,SFMono-Regular,Consolas,monospace;resize:vertical}
 .order-result[hidden]{display:none}
 @media(min-width:620px){
 .app{padding-top:42px}
 .list{grid-template-columns:repeat(3,minmax(0,1fr));gap:15px}
-.order-list{grid-template-columns:repeat(3,minmax(0,1fr))}
+.order-list,.product-management-list{grid-template-columns:repeat(2,minmax(0,1fr))}
 .overlay{align-items:center;padding:20px}
 .modal{border-radius:22px;max-height:88vh}
 .form-grid{grid-template-columns:1fr 1fr}
@@ -123,7 +130,7 @@ h1{font-family:Georgia,"Times New Roman",serif;font-size:clamp(32px,5vw,46px);fo
 }
 @media(min-width:900px){
 .list{grid-template-columns:repeat(4,minmax(0,1fr))}
-.order-list{grid-template-columns:repeat(4,minmax(0,1fr))}
+.order-list,.product-management-list{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
 @media(max-width:480px){
 .app{padding-left:16px;padding-right:16px}
@@ -135,9 +142,11 @@ h1{font-size:32px}
 .admin-row{align-items:flex-start;flex-direction:column}
 .admin-row .form-actions{width:100%}
 .admin-row button{flex:1}
+.order-add{align-items:stretch;flex-direction:column;max-width:none}
+.order-add .btn{width:100%}
 .drink{min-height:140px;padding:16px}
 .drink h3{font-size:18px}
-.order-list{grid-template-columns:1fr}
+.order-list,.product-management-list{grid-template-columns:1fr}
 .modal{padding:22px 18px calc(24px + env(safe-area-inset-bottom))}
 }
 @media(prefers-reduced-motion:reduce){
@@ -161,6 +170,7 @@ h1{font-size:32px}
 <button type="button" data-admin-target="editCocktailsSection" id="menuEditCocktails" hidden>✎ Modifiche cocktail</button>
 <button type="button" data-admin-target="ownerArea" id="menuManageStaff" hidden>♙ Gestione staff</button>
 <button type="button" data-admin-target="addCocktailSection" id="menuAddCocktail" hidden>＋ Aggiunta cocktail</button>
+<button type="button" data-admin-target="manageProductsSection" id="menuManageProducts" hidden>＋ Gestione prodotti</button>
 <div class="dropdown-divider" id="recipeDivider" hidden></div>
 <button type="button" data-admin-action="recipes" id="menuRecipes" hidden>☷ Ricettario</button>
 <button type="button" data-admin-target="loadListSection" id="menuOrderList" hidden>▤ Lista carichi</button>
@@ -309,16 +319,43 @@ h1{font-size:32px}
 </form>
 </section>
 
-<section class="admin-view" id="loadListSection" hidden>
-<h2>Lista carichi</h2>
-<p class="small">Il catalogo è condiviso tra gli utenti. Tutti possono inserire le quantità e creare la propria lista; gli amministratori possono gestire i prodotti.</p>
+<section class="admin-view" id="manageProductsSection" hidden>
+<h2>Gestione prodotti</h2>
+<p class="small">Aggiungi, rinomina, ricategorizza o rimuovi i prodotti del catalogo condiviso.</p>
 <form class="order-add" id="orderProductForm">
 <div class="field">
 <label for="orderProductName">Nuovo prodotto</label>
 <input id="orderProductName" maxlength="80" required placeholder="Es. Acqua tonica">
 </div>
+<div class="field">
+<label for="orderProductCategory">Categoria</label>
+<select id="orderProductCategory" required>
+<option value="">Scegli categoria</option>
+<option>Birre</option>
+<option>Alcolici</option>
+<option>Toniche</option>
+<option>Soft Drink</option>
+</select>
+</div>
 <button class="btn primary" type="submit">＋ Aggiungi</button>
 </form>
+<div id="manageProductStatus" class="status" role="status" aria-live="polite"></div>
+<div class="field order-search">
+<label for="manageProductSearch">Cerca nel catalogo</label>
+<input id="manageProductSearch" type="search" placeholder="Scrivi il nome del prodotto…" autocomplete="off">
+</div>
+<div class="admin-count" id="manageProductCount" aria-live="polite"></div>
+<div class="product-management-list" id="manageProductList"></div>
+</section>
+
+<section class="admin-view" id="loadListSection" hidden>
+<h2>Lista carichi</h2>
+<p class="small">Cerca i prodotti, filtra per categoria e inserisci la quantità da caricare. Le quantità della lista sono personali.</p>
+<div class="field order-search">
+<label for="orderSearch">Cerca prodotti</label>
+<input id="orderSearch" type="search" placeholder="Scrivi il nome del prodotto…" autocomplete="off">
+</div>
+<nav class="order-category-filters" id="orderCategoryFilters" aria-label="Filtra prodotti per categoria"></nav>
 <div class="admin-count" id="orderCount" aria-live="polite"></div>
 <div class="order-list" id="orderProducts"></div>
 <div class="form-actions">
@@ -418,9 +455,10 @@ const FAV_KEY='gigis-bar-favorites-v3';
 const ORDER_KEY='gigis-bar-order-quantities-v1';
 const ORDER_CATALOG_NAME='__gigis_bar_order_catalog__';
 const ORDER_CATALOG_CATEGORY='__gigis_bar_order_catalog__';
+const ORDER_PRODUCT_CATEGORIES=['Birre','Alcolici','Toniche','Soft Drink'];
 const recipeFormFieldIds=['recipeName','recipeCategory','recipeMethod','recipeGarnish','recipeIngredients','recipePreparation'];
 
-let recipes=[],favorites=[],orderQuantities={},orderProducts=[],orderProductsLoaded=false,orderProductsReloadRequested=false,orderGenerated=false,activeCategory='Tutti',searchTerm='',adminCategory='Tutti',adminSearchTerm='',recipeFormBaseline='',currentUser=null,isAdmin=false,isOwner=false,isPasswordRecovery=false,editingId=null,channel=null,orderCatalogId=null,isOrderProductsLoading=false;
+let recipes=[],favorites=[],orderQuantities={},orderProducts=[],orderProductsLoaded=false,orderProductsReloadRequested=false,orderGenerated=false,orderSearchTerm='',orderManageSearchTerm='',orderCategoryFilter='Tutti',activeCategory='Tutti',searchTerm='',adminCategory='Tutti',adminSearchTerm='',recipeFormBaseline='',currentUser=null,isAdmin=false,isOwner=false,isPasswordRecovery=false,editingId=null,channel=null,orderCatalogId=null,isOrderProductsLoading=false;
 
 try{
 favorites=JSON.parse(localStorage.getItem(FAV_KEY)||'[]');
@@ -572,9 +610,9 @@ $('memberArea').hidden=!logged;
 $('recoveryArea').hidden=!recovering;
 $('manageArea').hidden=!canManage;
 $('recipeArea').hidden=!logged;
-$('orderProductForm').hidden=!canManage;
 $('menuEditCocktails').hidden=!canManage;
 $('menuAddCocktail').hidden=!canManage;
+$('menuManageProducts').hidden=!canManage;
 $('menuManageStaff').hidden=!(logged&&isOwner);
 $('accountDivider').hidden=!canManage;
 $('menuRecipes').hidden=!logged;
@@ -605,6 +643,8 @@ $('adminPanel').classList.remove('show');
 renderFilters();
 renderList();
 if(!$('loadListSection').hidden)renderOrderList();
+if(!$('manageProductsSection').hidden)renderProductManagement();
+if(!$('manageProductsSection').hidden)renderProductManagement();
 }
 }
 
@@ -614,6 +654,7 @@ const availableSections={
 accountSection:true,
 addCocktailSection:canManage,
 editCocktailsSection:canManage,
+manageProductsSection:canManage,
 loadListSection:!!currentUser,
 ownerArea:!!currentUser&&isOwner
 };
@@ -660,6 +701,9 @@ return;
 showAdminSection(item.dataset.adminTarget);
 if(item.dataset.adminTarget==='loadListSection'){
 renderOrderList();
+loadOrderProducts();
+}else if(item.dataset.adminTarget==='manageProductsSection'){
+renderProductManagement();
 loadOrderProducts();
 }
 closeAdminMenu();
@@ -989,7 +1033,7 @@ f.appendChild(b);
 
 function getOrderProducts(){
 return orderProducts
-.map(name=>[normalize(name),name])
+.map(product=>[normalize(product.name),product.name,product.category])
 .sort((a,b)=>a[1].localeCompare(b[1],'it'));
 }
 
@@ -998,28 +1042,34 @@ const message=String(error?.message||'');
 return message||'Errore nel caricamento del catalogo condiviso.';
 }
 
-function uniqueProductNames(names){
+function statusOrderCatalog(message,type=''){
+status($('manageProductsSection').hidden?'orderStatus':'manageProductStatus',message,type);
+}
+
+function normalizeOrderProducts(products){
 const unique=new Map();
-names.forEach(value=>{
-const name=String(value||'').trim();
+products.forEach(product=>{
+const name=String(Array.isArray(product)?product[0]:product?.name||'').trim();
+const rawCategory=Array.isArray(product)?product[1]:product?.category;
+const category=ORDER_PRODUCT_CATEGORIES.includes(rawCategory)?rawCategory:'';
 const key=normalize(name);
-if(name&&key&&!unique.has(key))unique.set(key,name);
+if(name&&key&&!unique.has(key))unique.set(key,{name,category});
 });
-return [...unique.values()].sort((a,b)=>a.localeCompare(b,'it'));
+return [...unique.values()].sort((a,b)=>a.name.localeCompare(b.name,'it'));
 }
 
 function recipeIngredientsAsProducts(){
-return uniqueProductNames(recipes.flatMap(recipe=>
-recipe.ingredients.map(pair=>pair?.[0]||'')
+return normalizeOrderProducts(recipes.flatMap(recipe=>
+recipe.ingredients.map(pair=>[pair?.[0]||'',''])
 ));
 }
 
-function orderCatalogPayload(names){
+function orderCatalogPayload(products){
 return {
 name:ORDER_CATALOG_NAME,
 category:ORDER_CATALOG_CATEGORY,
 method:'Catalogo condiviso',
-ingredients:names.map(name=>[name,'']),
+ingredients:products.map(product=>[product.name,product.category]),
 note:'',
 preparation:'',
 custom:true
@@ -1034,7 +1084,7 @@ return;
 }
 
 isOrderProductsLoading=true;
-status('orderStatus','Caricamento prodotti condivisi…');
+statusOrderCatalog('Caricamento prodotti condivisi…');
 
 try{
 const {data,error}=await db.from('recipes')
@@ -1047,10 +1097,7 @@ if(error)throw error;
 
 orderCatalogId=data?.id||null;
 if(data){
-const names=Array.isArray(data.ingredients)
-?data.ingredients.map(pair=>Array.isArray(pair)?pair[0]:'')
-:[];
-orderProducts=uniqueProductNames(names);
+orderProducts=normalizeOrderProducts(Array.isArray(data.ingredients)?data.ingredients:[]);
 }else{
 orderProducts=recipeIngredientsAsProducts();
 
@@ -1065,18 +1112,19 @@ orderCatalogId=created.id;
 }
 
 orderProductsLoaded=true;
-renderOrderList();
+if(!$('loadListSection').hidden)renderOrderList();
+if(!$('manageProductsSection').hidden)renderProductManagement();
 if(!data&&(isAdmin||isOwner)){
-status('orderStatus','Catalogo condiviso creato.','ok');
+statusOrderCatalog('Catalogo condiviso creato.','ok');
 }else if(!data){
-status('orderStatus','Prodotti ricavati dal ricettario condiviso. Un amministratore può attivare la gestione del catalogo.');
+statusOrderCatalog('Prodotti ricavati dal ricettario condiviso. Un amministratore può attivare la gestione del catalogo.');
 }else{
-status('orderStatus','Catalogo aggiornato.','ok');
+statusOrderCatalog('Catalogo aggiornato.','ok');
 }
 }catch(error){
 console.error('Impossibile caricare il catalogo prodotti condiviso.',error);
 orderProductsLoaded=false;
-status('orderStatus',orderProductLoadError(error),'error');
+statusOrderCatalog(orderProductLoadError(error),'error');
 }finally{
 isOrderProductsLoading=false;
 if(orderProductsReloadRequested){
@@ -1089,7 +1137,7 @@ loadOrderProducts();
 async function saveOrderProductNames(names){
 if(!isAdmin&&!isOwner)throw new Error('Solo un amministratore può modificare il catalogo condiviso.');
 
-const payload=orderCatalogPayload(uniqueProductNames(names));
+const payload=orderCatalogPayload(normalizeOrderProducts(names));
 let result;
 if(orderCatalogId){
 result=await db.from('recipes').update(payload).eq('id',orderCatalogId);
@@ -1099,7 +1147,7 @@ if(!result.error)orderCatalogId=result.data.id;
 }
 
 if(result.error)throw result.error;
-orderProducts=uniqueProductNames(names);
+orderProducts=normalizeOrderProducts(names);
 orderProductsLoaded=true;
 }
 
@@ -1142,9 +1190,21 @@ return;
 }
 
 const products=getOrderProducts();
+renderOrderCategoryFilters();
+
 const container=$('orderProducts');
 container.replaceChildren();
-$('orderCount').textContent=products.length+' prodotti';
+if($('orderSearch').value!==orderSearchTerm)$('orderSearch').value=orderSearchTerm;
+const query=normalize(orderSearchTerm);
+const visibleProducts=products.filter(([,name,category])=>{
+const matchesSearch=normalize(name).includes(query);
+const matchesCategory=orderCategoryFilter==='Tutti'||
+(orderCategoryFilter==='Senza categoria'?!category:category===orderCategoryFilter);
+return matchesSearch&&matchesCategory;
+});
+$('orderCount').textContent=visibleProducts.length===products.length
+?products.length+' prodotti'
+:visibleProducts.length+' di '+products.length+' prodotti';
 
 if(!products.length){
 container.appendChild(el('div','empty','Nessun prodotto presente. Aggiungine uno dal campo qui sopra.'));
@@ -1154,75 +1214,17 @@ orderGenerated=false;
 return;
 }
 
-products.forEach(([key,name],index)=>{
+if(!visibleProducts.length){
+container.appendChild(el('div','empty','Nessun prodotto trovato. Prova a cambiare ricerca o categoria.'));
+return;
+}
+
+visibleProducts.forEach(([key,name,category],index)=>{
 const row=el('div','order-row');
 const label=el('label','',name);
 const head=el('div','order-product-head');
-const actions=el('div','order-product-actions');
-if(isAdmin||isOwner){
-const edit=el('button','btn','Modifica');
-edit.type='button';
-edit.setAttribute('aria-label','Modifica '+name);
-edit.onclick=async()=>{
-const updatedName=prompt('Modifica nome prodotto:',name);
-if(updatedName===null)return;
-
-const trimmedName=updatedName.trim();
-if(!trimmedName){
-status('orderStatus','Il nome del prodotto non può essere vuoto.','error');
-return;
-}
-
-const duplicate=products.some(([productId,productName])=>
-productId!==key&&normalize(productName)===normalize(trimmedName)
-);
-if(duplicate){
-status('orderStatus','Esiste già un prodotto con questo nome.','error');
-return;
-}
-
-try{
-const names=orderProducts.map(product=>
-normalize(product)===key?trimmedName:product
-);
-const quantity=orderQuantities[key];
-await saveOrderProductNames(names);
-if(quantity!==undefined){
-orderQuantities[normalize(trimmedName)]=quantity;
-delete orderQuantities[key];
-saveOrderQuantities();
-}
-renderOrderList();
-if(orderGenerated)generateOrderList();
-status('orderStatus','Prodotto modificato nel catalogo condiviso.','ok');
-}catch(error){
-console.error('Impossibile modificare il prodotto condiviso.',error);
-status('orderStatus','Errore durante la modifica: '+orderProductLoadError(error),'error');
-}
-};
-
-const remove=el('button','btn danger','Elimina');
-remove.type='button';
-remove.setAttribute('aria-label','Elimina '+name);
-remove.onclick=async()=>{
-if(!confirm('Eliminare "'+name+'" dal catalogo prodotti?'))return;
-
-try{
-await saveOrderProductNames(orderProducts.filter(product=>normalize(product)!==key));
-delete orderQuantities[key];
-saveOrderQuantities();
-renderOrderList();
-if(orderGenerated)generateOrderList();
-status('orderStatus','Prodotto eliminato dal catalogo condiviso.','ok');
-}catch(error){
-console.error('Impossibile eliminare il prodotto condiviso.',error);
-status('orderStatus','Errore durante l’eliminazione: '+orderProductLoadError(error),'error');
-}
-};
-
-actions.append(edit,remove);
-}
-head.append(label,actions);
+const categoryTag=el('div','cat',category||'Senza categoria');
+head.append(categoryTag,label);
 
 const quantityLabel=el('label','order-quantity','Quantità');
 const input=el('input');
@@ -1258,6 +1260,143 @@ container.appendChild(row);
 });
 
 if(orderGenerated)generateOrderList();
+}
+
+function renderOrderCategoryFilters(){
+const filter=$('orderCategoryFilters');
+filter.replaceChildren();
+['Tutti',...ORDER_PRODUCT_CATEGORIES,'Senza categoria'].forEach(category=>{
+const button=el('button','chip'+(orderCategoryFilter===category?' active':''),category);
+button.type='button';
+button.setAttribute('aria-pressed',String(orderCategoryFilter===category));
+button.onclick=()=>{
+orderCategoryFilter=category;
+renderOrderList();
+};
+filter.appendChild(button);
+});
+}
+
+function renderProductManagement(){
+const container=$('manageProductList');
+if(!container)return;
+container.replaceChildren();
+
+if(!orderProductsLoaded){
+container.appendChild(el('div','empty',isOrderProductsLoading?'Caricamento catalogo condiviso…':'Il catalogo condiviso non è disponibile.'));
+$('manageProductCount').textContent='';
+return;
+}
+
+const query=normalize(orderManageSearchTerm);
+const products=getOrderProducts().filter(([,name,category])=>
+normalize([name,category].join(' ')).includes(query)
+);
+$('manageProductCount').textContent=products.length===orderProducts.length
+?orderProducts.length+' prodotti'
+:products.length+' di '+orderProducts.length+' prodotti';
+
+if(!products.length){
+container.appendChild(el('div','empty',orderProducts.length?'Nessun prodotto trovato. Prova un’altra ricerca.':'Il catalogo è vuoto. Aggiungi il primo prodotto qui sopra.'));
+return;
+}
+
+products.forEach(([key,name,category],index)=>{
+const card=el('article','product-management-row');
+const fields=el('div','product-management-fields');
+const nameField=el('div','field');
+const nameLabel=el('label','', 'Nome prodotto');
+const nameInput=el('input');
+nameInput.type='text';
+nameInput.maxLength=80;
+nameInput.value=name;
+nameInput.setAttribute('aria-label','Nome prodotto '+name);
+nameInput.id='managedProductName'+index;
+nameLabel.htmlFor=nameInput.id;
+nameField.append(nameLabel,nameInput);
+
+const categoryField=el('div','field');
+const categoryLabel=el('label','','Categoria');
+const categorySelect=el('select');
+categorySelect.id='managedProductCategory'+index;
+categoryLabel.htmlFor=categorySelect.id;
+const emptyOption=el('option','','Senza categoria');
+emptyOption.value='';
+categorySelect.appendChild(emptyOption);
+ORDER_PRODUCT_CATEGORIES.forEach(value=>{
+const option=el('option','',value);
+option.value=value;
+categorySelect.appendChild(option);
+});
+categorySelect.value=category;
+categoryField.append(categoryLabel,categorySelect);
+fields.append(nameField,categoryField);
+
+const actions=el('div','product-management-actions');
+const save=el('button','btn primary','Salva modifiche');
+save.type='button';
+save.onclick=async()=>{
+const updatedName=nameInput.value.trim();
+if(!updatedName){
+status('manageProductStatus','Il nome del prodotto non può essere vuoto.','error');
+nameInput.focus();
+return;
+}
+
+const duplicate=orderProducts.some(product=>
+normalize(product.name)!==key&&normalize(product.name)===normalize(updatedName)
+);
+if(duplicate){
+status('manageProductStatus','Esiste già un prodotto con questo nome.','error');
+nameInput.focus();
+return;
+}
+
+try{
+const updatedProducts=orderProducts.map(product=>
+normalize(product.name)===key
+?{name:updatedName,category:categorySelect.value}
+:product
+);
+await saveOrderProductNames(updatedProducts);
+if(updatedName!==name){
+const quantity=orderQuantities[key];
+if(quantity!==undefined){
+orderQuantities[normalize(updatedName)]=quantity;
+delete orderQuantities[key];
+saveOrderQuantities();
+}
+}
+renderProductManagement();
+renderOrderList();
+status('manageProductStatus','Prodotto aggiornato nel catalogo condiviso.','ok');
+}catch(error){
+console.error('Impossibile aggiornare il prodotto condiviso.',error);
+status('manageProductStatus','Errore durante il salvataggio: '+orderProductLoadError(error),'error');
+}
+};
+
+const remove=el('button','btn danger','Elimina');
+remove.type='button';
+remove.onclick=async()=>{
+if(!confirm('Eliminare "'+name+'" dal catalogo condiviso?'))return;
+
+try{
+await saveOrderProductNames(orderProducts.filter(product=>normalize(product.name)!==key));
+delete orderQuantities[key];
+saveOrderQuantities();
+renderProductManagement();
+renderOrderList();
+status('manageProductStatus','Prodotto eliminato dal catalogo condiviso.','ok');
+}catch(error){
+console.error('Impossibile eliminare il prodotto condiviso.',error);
+status('manageProductStatus','Errore durante l’eliminazione: '+orderProductLoadError(error),'error');
+}
+};
+actions.append(save,remove);
+card.append(fields,actions);
+container.appendChild(card);
+});
 }
 
 function renderList(){
@@ -1382,23 +1521,38 @@ searchTerm=$('search').value;
 renderList();
 });
 
+$('orderSearch').addEventListener('input',()=>{
+orderSearchTerm=$('orderSearch').value;
+renderOrderList();
+});
+
+$('manageProductSearch').addEventListener('input',()=>{
+orderManageSearchTerm=$('manageProductSearch').value;
+renderProductManagement();
+});
+
 $('orderProductForm').addEventListener('submit',event=>{
 event.preventDefault();
 
 if(!isAdmin&&!isOwner){
-status('orderStatus','Solo un amministratore può modificare il catalogo condiviso.','error');
+status('manageProductStatus','Solo un amministratore può modificare il catalogo condiviso.','error');
 return;
 }
 
 const name=$('orderProductName').value.trim();
+const category=$('orderProductCategory').value;
 if(!name){
-status('orderStatus','Inserisci il nome del prodotto.','error');
+status('manageProductStatus','Inserisci il nome del prodotto.','error');
+return;
+}
+if(!ORDER_PRODUCT_CATEGORIES.includes(category)){
+status('manageProductStatus','Scegli una categoria per il prodotto.','error');
 return;
 }
 
 const normalizedName=normalize(name);
 if(getOrderProducts().some(([,productName])=>normalize(productName)===normalizedName)){
-status('orderStatus','Esiste già un prodotto con questo nome.','error');
+status('manageProductStatus','Esiste già un prodotto con questo nome.','error');
 return;
 }
 
@@ -1408,13 +1562,14 @@ button.textContent='Aggiunta…';
 
 async function addOrderProduct(){
 try{
-await saveOrderProductNames([...orderProducts,name]);
+await saveOrderProductNames([...orderProducts,{name,category}]);
 renderOrderList();
+renderProductManagement();
 $('orderProductForm').reset();
-status('orderStatus','Prodotto aggiunto al catalogo condiviso.','ok');
+status('manageProductStatus','Prodotto aggiunto al catalogo condiviso.','ok');
 }catch(error){
 console.error('Impossibile aggiungere il prodotto condiviso.',error);
-status('orderStatus','Errore durante l’aggiunta: '+orderProductLoadError(error),'error');
+status('manageProductStatus','Errore durante l’aggiunta: '+orderProductLoadError(error),'error');
 }finally{
 button.disabled=false;
 button.textContent='＋ Aggiungi';
@@ -1668,4 +1823,5 @@ box.appendChild(row);
 </script>
 </body>
 </html>
+
 
